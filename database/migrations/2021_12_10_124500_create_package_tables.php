@@ -1,0 +1,82 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePackageTables extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        // Permisisons Table
+        Schema::create('permissions', function (Blueprint $table) {
+            $table->id();
+            $table->longText('title')->unique()->comment('Unique Title');
+            $table->longText('slug')->unique()->comment('text');
+            $table->text('model')->nullable();  // Users
+            $table->text('method')->nullable();//view,create,update,delete,edit,show
+        });
+        //  Roles Table
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->text('title')->unique();
+            $table->text('description')->default('Role Description');
+            $table->text('slug')->unique();
+        });
+        //  Roles Permissions Table
+        Schema::create('roles_permissions', function (Blueprint $table) {
+            $table->bigInteger('role_id')->unsigned();
+            $table->bigInteger('permission_id')->unsigned();
+
+            //FOREIGN KEY CONSTRAINTS
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+
+            //SETTING THE PRIMARY KEYS
+            $table->primary(['role_id','permission_id']);
+        });
+        //  Users Permissions
+        Schema::create('users_permissions', function (Blueprint $table) {
+            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('permission_id')->unsigned();
+
+            //FOREIGN KEY CONSTRAINTS
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+
+            //SETTING THE PRIMARY KEYS
+            $table->primary(['user_id','permission_id']);
+        });
+        //  Users Roles
+        Schema::create('users_roles', function (Blueprint $table) {
+            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('role_id')->unsigned();
+
+            //FOREIGN KEY CONSTRAINTS
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+
+            //SETTING THE PRIMARY KEYS
+            $table->primary(['user_id','role_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('users_roles');
+        Schema::dropIfExists('users_permissions');
+        Schema::dropIfExists('roles_permissions');
+        Schema::dropIfExists('roles');
+        Schema::dropIfExists('permissions');
+    }
+}
