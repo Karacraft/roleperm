@@ -61,6 +61,6 @@ class RolePermServiceProvider extends ServiceProvider
             __DIR__ . '/Helpers/Constants.php' => app_path('Helpers/Constants.php'),
             __DIR__ . '/Helpers/Misc.php' => app_path('Helpers/Misc.php'),
             __DIR__ . '/Helpers/SeederHelper.php' => app_path('Helpers/SeederHelper.php'),
-        ],'releperm-helpers');
+        ],'roleperm-helpers');
     }
 }
