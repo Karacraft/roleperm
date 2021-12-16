@@ -3,6 +3,7 @@
 namespace Karacraft\Roleperm\Models;
 
 use App\Models\User;
+use App\Traits\RolePermission;
 use Illuminate\Support\Facades\DB;
 use Karacraft\Roleperm\Models\Base;
 use Karacraft\Roleperm\Models\Permission;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Role extends Base
 {
-    use HasFactory;
+    use HasFactory, RolePermission;
 
     protected $table = 'roles';
     protected $fillable = ['title','description','slug'];

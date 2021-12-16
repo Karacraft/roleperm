@@ -92,11 +92,11 @@ class Permission extends Base
     }
 
 
-    public static function superAdminPermissions()
-    {
-        $superAdminPerm = Permission::all();
-        return $superAdminPerm;
-    }
+    // public static function superAdminPermissions()
+    // {
+    //     $superAdminPerm = Permission::all();
+    //     return $superAdminPerm;
+    // }
 
     /** Relationships */
     public function roles(){return $this->belongsToMany(Role::class, 'roles_permissions');}

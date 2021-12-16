@@ -29,6 +29,7 @@ trait RolePermission
     public function getUpdatedAtAttribute($value){return Carbon::createFromFormat('d-m-Y H:i:s',$value)->format('d-m-Y H:i:s');}
     public function getTitleAttribute($value){ return Str::ucfirst($value);}
     /*************************-SETTERS-*****************/
-    public function setTitleAttribute($value) { $this->attributes['title'] = Str::upper($value);}
+    
+    public function setTitleAttribute($value) { $this->attributes['title'] = Str::lower($value);}
     public function setDescriptionAttribute($value) { $this->attributes['description'] = Str::lower($value);}
 }

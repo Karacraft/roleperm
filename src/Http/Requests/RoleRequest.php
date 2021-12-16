@@ -24,17 +24,33 @@ class RoleRequest extends FormRequest
      */
     public function rules()
     {
+        $rules = [
+            'title' => 'required|unique:roles|min:5',
+            'description' => 'required|min:10',
+        ];
+        //  Use Alterantes
+        if ($this->isMethod('post'))
+        {
+            return $this->createRules();
+        }
+        else if ($this->isMethod('put')){
+            return $this->updateRules();
+        }
+    }
+
+    public function createRules()
+    {
         return [
             'title' => 'required|unique:roles|min:5',
             'description' => 'required|min:10',
         ];
     }
 
-    public function messages()
+    public function updateRules()
     {
         return [
-            'title.required' => 'Atlease 5 Characters - Title should be unique',
-            'description.required' => 'Minimum 10 Characters Required for Description', 
+            'title' => 'required|min:5|unique:roles,title,' . $this->id ,
+            'description' => 'required|min:10',
         ];
     }
 }
