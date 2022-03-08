@@ -41,7 +41,7 @@ class RoleRequest extends FormRequest
     public function createRules()
     {
         return [
-            'title' => 'required|unique:roles|min:5',
+            'title' => 'required|unique:roles|min:4',
             'description' => 'required|min:10',
         ];
     }
@@ -49,7 +49,7 @@ class RoleRequest extends FormRequest
     public function updateRules()
     {
         return [
-            'title' => 'required|min:5|unique:roles,title,' . $this->id ,
+            'title' => 'required|min:4|unique:roles,title,' . $this->id ,
             'description' => 'required|min:10',
         ];
     }
