@@ -25,7 +25,7 @@ class RoleRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'title' => 'required|unique:roles|min:5',
+            'title' => 'required|unique:roles|min:4',
             'description' => 'required|min:10',
         ];
         //  Use Alterantes
