@@ -55,8 +55,10 @@
                     paginationSize:10,                      //starting page size
                     paginationSizeSelector:[10,20,50,100],  //  Page Size Selector
                     // Ajax Options
-                    ajaxFiltering:true,
-                    ajaxSorting:true,
+                    // ajaxFiltering:true,
+                    // ajaxSorting:true,
+                    sortMode:"remote",
+                    filterMode:"remote",
                     ajaxParams:{search:searchValue},
                     ajaxURL: getDataUrl,
                     //  Init Sorting
@@ -82,7 +84,7 @@
                         let doc = document.getElementById("example-table-info");
                         doc.classList.add('font-weight-bold');
                         doc.innerText = `Displaying ${response.from} - ${response.to} out of ${remaining} records`;
-                        return response;
+                        return response.data;
                     },
                 });
                 

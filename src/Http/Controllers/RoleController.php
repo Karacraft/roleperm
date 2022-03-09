@@ -48,8 +48,8 @@ class RoleController extends Controller
     {
         $search = $request->search;
         $size = $request->size;
-        $field = $request->sorters[0]["field"];     //  Nested Array
-        $dir = $request->sorters[0]["dir"];         //  Nested Array
+        $field = $request->sort[0]["field"];     //  Nested Array
+        $dir = $request->sort[0]["dir"];         //  Nested Array
 
         $roles = Role::where(function ($query) use ($search) {   // Keep all where in closure to be effective
             $query->where('slug','LIKE',"%$search%")
