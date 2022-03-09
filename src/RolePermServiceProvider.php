@@ -62,5 +62,11 @@ class RolePermServiceProvider extends ServiceProvider
             __DIR__ . '/Helpers/Misc.php' => app_path('Helpers/Misc.php'),
             __DIR__ . '/Helpers/SeederHelper.php' => app_path('Helpers/SeederHelper.php'),
         ],'roleperm-helpers');
+        //  Publish Models
+        $this->publishes([
+            __DIR__ . '/Models/Base.php' => app_path('Models/Base.php'),
+            __DIR__ . '/Models/Permission.php' => app_path('Models/Permission.php'),
+            __DIR__ . '/Models/Role.php' => app_path('Models/Role.php'),
+        ],'roleperm-models');
     }
 }

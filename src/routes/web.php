@@ -15,5 +15,5 @@ Route::name('role.')->prefix('role/')->group(function(){
 // Route::get('role',[ RoleController::class , 'index'])->name('role.index');
 
 Route::get('package', function() {
-    return 'Its Working';
+    return 'Role & Permission package is working';
 });

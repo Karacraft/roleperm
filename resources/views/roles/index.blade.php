@@ -71,8 +71,8 @@
                         {title:"Slug", field:"slug" , visible:true ,headerSortStartingDir:"asc" , responsive:0},
                         {title:"Description", field:"description" , visible:true ,headerSortStartingDir:"asc" , responsive:0},
                         {title:"Edit" , formatter:editIcon, align:"center",headerSort:false, responsive:2,
-                            cellClick:function(e, cell){ window.open(window.location + "/" + cell.getRow().getData().id + "/edit" );
-                                console.log(window.location);
+                            cellClick:function(e, cell){
+                                 window.open(window.location + "/" + cell.getRow().getData().id + "/edit","_self" );
                             }
                         },
                     ],
