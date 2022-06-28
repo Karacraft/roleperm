@@ -1,6 +1,6 @@
 # Role & Permission Package
 
-Simple Role & Permission based Authorization package.
+Simple Role & Permission based Authorization package for Laravel 8.x.
 
 ## Installation
 Currently, the package is not on packagist. To install it on your own project , add the following in your main project composer.json , just below "script" 
