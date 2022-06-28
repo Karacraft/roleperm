@@ -41,30 +41,24 @@
             {
                 //  Populate Tabulator
                 table = new Tabulator("#tableData", {
-                    // Normal Options
                     autoResize:true,
-                    height:"100%",
-                    layout:"fitData",                       //fit columns to width of table
-                    responsiveLayout:"collapse",            //hide columns that dont fit on the table
-                    index:'id',                             //Table Row Id
-                    placeholder:"No Data Available",        //Placeholder text for empty table
-                    // selectable:true,
-                    sortOrderReverse:true,
-                    // Pagination
-                    pagination:"remote",                    //paginate the data
-                    paginationSize:10,                      //starting page size
-                    paginationSizeSelector:[10,20,50,100],  //  Page Size Selector
-                    // Ajax Options
-                    // ajaxFiltering:true,
-                    // ajaxSorting:true,
+                    responsiveLayout:"collapse",
+                    layout:"fitData",    	
+                    index:"id",                                 
+                    placeholder:"No Data Available",            
+                    pagination:true,                            
+                    paginationMode:"remote",                    
                     sortMode:"remote",
                     filterMode:"remote",
-                    ajaxParams:{search:searchValue},
+                    paginationSize:20,                      
+                    paginationSizeSelector:[10,25,50,100],  
+                    ajaxParams: function(){
+                        return {search:searchValue};
+                    },
                     ajaxURL: getDataUrl,
-                    //  Init Sorting
-                    initialSort:[
-                        {column:"id", dir:"asc"},          //sort by this first
-                    ],
+                    ajaxContentType:"json", 
+                    initialSort:[ {column:"id", dir:"desc"} ],
+                    height:"100%",
                     // Columns
                     columns:[
                         // Master Data
