@@ -13,6 +13,12 @@ class CreatePackageTables extends Migration
      */
     public function up()
     {
+         // Methods Table
+        Schema::create('methods', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('slug');
+        });
         // Permisisons Table
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
@@ -73,6 +79,7 @@ class CreatePackageTables extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('methods');
         Schema::dropIfExists('users_roles');
         Schema::dropIfExists('users_permissions');
         Schema::dropIfExists('roles_permissions');

@@ -1,11 +1,11 @@
 {
-    "name": "karacraft/roleperm",
-    "description": "Roles & Permissions based Authentication",
-    "type": "project",
+    "name": "karacraft/roles-and-permissions",
+    "description": "Simple",
+    "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Karacraft\\Roleperm\\": "src/"
+            "Karacraft\\RolesAndPermissions\\": "src/"
         }
     },
     "authors": [
@@ -14,13 +14,14 @@
             "email": "kcraftpk@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
+    "require": {},
     "extra": {
         "laravel":{
             "providers": [
-                "Karacraft\\Roleperm\\RolePermServiceProvider",
-                "Karacraft\\Roleperm\\PermissionsServiceProvider"
+                "Karacraft\\RolesAndPermissions\\RolesAndPermissionsServiceProvider",
+                "Karacraft\\RolesAndPermissions\\PermissionsServiceProvider"
             ]
         }
-    },
-    "require": {}
+    }
 }

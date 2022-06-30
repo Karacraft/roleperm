@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace Karacraft\RolesAndPermissions\Traits;
 
 use Carbon\Carbon;
 use DateTimeInterface;
@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 /**
  * NotifyStoreIncharge
  */
-trait RolePermission
+trait RolesAndPermissionsTrait
 {
     //  Route Binding - Learn More : https://laravel.com/docs/7.x/routing#explicit-binding
     public function getRouteKeyName(){return 'slug';}

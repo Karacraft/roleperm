@@ -1,13 +1,13 @@
 <?php
 
-namespace Karacraft\Roleperm\Traits;
+namespace Karacraft\RolesAndPermissions\Traits;
 
-use Karacraft\Roleperm\Models\Role;
-use Karacraft\Roleperm\Models\Permission;
+use Karacraft\RolesAndPermissions\Models\Role;
+use Karacraft\RolesAndPermissions\Models\Permission;
 /**
  * Has Permission to View/Edit/Add/Delete Model Items
  */
-trait HasPermission
+trait HasPermissionTrait
 {
     //  Based on : https://www.codecheef.org/article/user-roles-and-permissions-tutorial-in-laravel-without-packages
     /**

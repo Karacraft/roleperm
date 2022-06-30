@@ -13,20 +13,25 @@ class CreatePackageTables extends Migration
      */
     public function up()
     {
+        Schema::create('methods', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('slug');
+        });
         // Permisisons Table
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->longText('title')->unique()->comment('Unique Title');
-            $table->longText('slug')->unique()->comment('text');
-            $table->text('model')->nullable();  // Users
-            $table->text('method')->nullable();//view,create,update,delete,edit,show
+            $table->string('title')->unique();
+            $table->string('slug')->unique();
+            $table->string('model')->nullable();  // Users
+            $table->string('method')->nullable();//view,create,update,delete,edit,show
         });
         //  Roles Table
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->text('title')->unique();
-            $table->text('description')->default('Role Description');
-            $table->text('slug')->unique();
+            $table->string('title')->unique();
+            $table->string('slug')->unique();
+            $table->string('description')->default('Role Description');
         });
         //  Roles Permissions Table
         Schema::create('roles_permissions', function (Blueprint $table) {
@@ -73,6 +78,7 @@ class CreatePackageTables extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('methods');
         Schema::dropIfExists('users_roles');
         Schema::dropIfExists('users_permissions');
         Schema::dropIfExists('roles_permissions');

@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Roles List
-            <a href="{{ route('role.create') }}" class="pl-2 pr-2 text-sm"><i class="fa fa-file"></i> Create</a>
+            Methods List
+            <a href="{{ route('method.create') }}" class="pl-2 pr-2 text-sm"><i class="fa fa-file"></i> Create</a>
         </h2>
     </x-slot>
 
@@ -10,7 +10,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
 				<div class="block mb-8 px-4 py-4">
-					<a class="text-sm text-white hover:text-red-900 px-4 bg-red-600 rounded-md mx-2	 my-2 py-2" href="{{ route('role.create') }}">
+					<a class="text-sm text-white hover:text-red-900 px-4 bg-red-600 rounded-md mx-2	 my-2 py-2" href="{{ route('method.create') }}">
 						{{ __('Create') }}
 					</a>
 				</div>
@@ -42,28 +42,28 @@
 										</tr>
 									</thead>
 									<tbody class="bg-white divide-y divide-gray-200">
-										@foreach ($roles as $role)
+										@foreach ($methods as $method)
 										<tr class="border-b">
 											<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-												{{ $role->id }}
+												{{ $method->id }}
 											</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-												{{ $role->title }}
+												{{ $method->title }}
 											</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-												{{ $role->slug }}
+												{{ $method->slug }}
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-												{{ $role->description }}
+												{{ $method->description }}
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-												<a class="text-sm text-indigo-600 hover:text-gray-900" href="{{ route('role.show',$role) }}">
+												<a class="text-sm text-indigo-600 hover:text-gray-900" href="{{ route('method.show',$method) }}">
 													{{ __('View') }}
 												</a>
-												<a class="text-sm text-green-600 hover:text-gray-900" href="{{ route('role.edit',$role) }}">
+												<a class="text-sm text-green-600 hover:text-gray-900" href="{{ route('method.edit',$method) }}">
 													{{ __('Edit') }}
 												</a>
-												<form class="inline-block" action="{{ route('role.destroy', $role->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+												<form class="inline-block" action="{{ route('method.destroy', $method->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
 													<input type="hidden" name="_method" value="DELETE">
 													<input type="hidden" name="_token" value="{{ csrf_token() }}">
 													<input type="submit" class="text-red-600 hover:text-red-900 mb-2 mr-2" value="Delete">
@@ -79,22 +79,22 @@
 								<span class="text-xs xs:text-sm text-gray-900">
 									{{-- https://laravel.com/docs/9.x/pagination#paginator-instance-methods --}}
 									Showing 
-									{{ $roles->firstItem() }}
+									{{ $methods->firstItem() }}
 									to 
-									{{ $roles->lastItem() }}
+									{{ $methods->lastItem() }}
 									of 
-									{{ $roles->total() }}
+									{{ $methods->total() }}
 									Entries
 								</span>
 								<div class="inline-flex mt-2 xs:mt-0">
 									<button
 										class="text-sm text-indigo-50 transition duration-150 hover:bg-indigo-500 bg-indigo-600 font-semibold py-2 px-4 rounded-l">
-										<a href="{{ $roles->previousPageUrl() }}">Prev</a>
+										<a href="{{ $methods->previousPageUrl() }}">Prev</a>
 									</button>
 									&nbsp; &nbsp;
 									<button
 										class="text-sm text-indigo-50 transition duration-150 hover:bg-indigo-500 bg-indigo-600 font-semibold py-2 px-4 rounded-r">
-										<a href="{{ $roles->nextPageUrl() }}">Next</a>
+										<a href="{{ $methods->nextPageUrl() }}">Next</a>
 									</button>
 								</div>
 							</div>

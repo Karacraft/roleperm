@@ -4,17 +4,17 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit91d6328269f3764c9bf3bbfb5146540d
+class ComposerStaticInita61fcb98265b205c1e9eb8eaae60739c
 {
     public static $prefixLengthsPsr4 = array (
         'K' => 
         array (
-            'Karacraft\\Roleperm\\' => 19,
+            'Karacraft\\RolesAndPermissions\\' => 30,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Karacraft\\Roleperm\\' => 
+        'Karacraft\\RolesAndPermissions\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
@@ -27,9 +27,9 @@ class ComposerStaticInit91d6328269f3764c9bf3bbfb5146540d
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit91d6328269f3764c9bf3bbfb5146540d::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit91d6328269f3764c9bf3bbfb5146540d::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit91d6328269f3764c9bf3bbfb5146540d::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInita61fcb98265b205c1e9eb8eaae60739c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInita61fcb98265b205c1e9eb8eaae60739c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInita61fcb98265b205c1e9eb8eaae60739c::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Karacraft\Roleperm\Http\Requests;
+namespace Karacraft\RolesAndPermissions\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

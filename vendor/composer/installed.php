@@ -1,22 +1,22 @@
 <?php return array(
     'root' => array(
+        'name' => 'karacraft/roles-and-permissions',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'type' => 'project',
+        'reference' => 'd62408cb0336b5c14be682791c15aba86d877b8f',
+        'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '65640fa5d712434f7ef25a3df773e8a39f1043db',
-        'name' => 'karacraft/roleperm',
         'dev' => true,
     ),
     'versions' => array(
-        'karacraft/roleperm' => array(
+        'karacraft/roles-and-permissions' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'type' => 'project',
+            'reference' => 'd62408cb0336b5c14be682791c15aba86d877b8f',
+            'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '65640fa5d712434f7ef25a3df773e8a39f1043db',
             'dev_requirement' => false,
         ),
     ),

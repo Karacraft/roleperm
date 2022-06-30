@@ -6,15 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
-use Karacraft\RolesAndPermissions\Models\Role;
 use Karacraft\RolesAndPermissions\Models\Permission;
 use Karacraft\RolesAndPermissions\Http\Requests\RoleRequest;
 
-class RoleController extends Controller
+class PermissionController extends Controller
 {
 
     private $UNAUTHORIZED_ACCESS_STRING = 'Unauthorzied Access';
-
     public function __construct(){
         $this->middleware(['web','auth']);
     }
@@ -26,9 +24,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        if(auth()->user()->can('show_role'))
-            return view('RolesAndPermissions::roles.index')->with('roles',Role::paginate(5)); 
-        abort(403,$this->UNAUTHORIZED_ACCESS_STRING . " to [ View Roles ]\n");
+        if(auth()->user()->can('show_permission'))
+            return view('RolesAndPermissions::permissions.index')->with('permissions',Permission::paginate(5));  
+        abort(403,$this->UNAUTHORIZED_ACCESS_STRING . " to [ View Permissions ]\n");
     }
 
     /**
@@ -38,7 +36,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        if(auth()->user()->can('create_role'))
+        if(auth()->user()->can('create_permission'))
             return view('RolesAndPermissions::roles.create'); 
         abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Create Role ]\n");
     }
@@ -53,18 +51,18 @@ class RoleController extends Controller
     {
         DB::beginTransaction();
         try {
-            $role = new Role();
-            $role->title = $request->title;
-            $role->description = $request->description;
-            $role->slug = $request->title;
-            $role->save();
+            $permission = new Permisson();
+            $permission->title = $request->title;
+            $permission->slug = $request->title;
+            $permission->save();
             DB::commit();
-            Session::flash('success',"Role $role->title is created");
-            return redirect()->route('role.edit',$role->id);
+            Session::flash('success',"Permission $permission->title is created");
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
+        $permission = Permisson::whereTitle($request->title)->first();
+        return redirect()->route('Permission.edit',$permission->id);
     }
 
     /**
@@ -73,7 +71,7 @@ class RoleController extends Controller
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function show(Role $role)
+    public function show(Permisson $role)
     {
         //
     }
@@ -81,22 +79,22 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Role  $role
+     * @param  \App\Models\Permisson  $role
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        if(auth()->user()->can('edit_role'))
-        {
-            $permissions = Permission::all();
-            $models = Permission::select('model')->distinct()->get();    
+        // if(auth()->user()->can('edit_permission'))
+        // {
+        //     $permissions = Permission::all();
+        //     $models = Permission::select('model')->distinct()->get();    
             
-            return view('RolesAndPermissions::roles.edit')
-            ->with('role',Role::find($id))
-            ->with('models', $models)
-            ->with('permissions', $permissions);
-        }
-        abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Edit User ]\n" . CONTACT_IT);
+        //     return view('RolesAndPermissions::roles.edit')
+        //     ->with('role',Role::find($id))
+        //     ->with('models', $models)
+        //     ->with('permissions', $permissions);
+        // }
+        // abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Edit User ]\n" . CONTACT_IT);
     }
 
     /**
@@ -132,11 +130,11 @@ class RoleController extends Controller
             }
             DB::commit();
             Session::flash('success',"Role [$role->title] updated");
-            return redirect()->back();
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
+        return redirect()->back();
     }
 
     /**

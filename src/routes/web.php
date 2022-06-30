@@ -1,18 +1,18 @@
 <?php
 
-use Karacraft\Roleperm\Http\Controllers\RoleController;
+use Karacraft\RolesAndPermissions\Http\Controllers\RoleController;
+use Karacraft\RolesAndPermissions\Http\Controllers\MethodController;
+use Karacraft\RolesAndPermissions\Http\Controllers\PermissionController;
 
 Route::name('role.')->prefix('role/')->group(function(){
-    Route::put('{id}',[ RoleController::class, 'update'])->name('update');
-    Route::get('{id}/edit',[ RoleController::class, 'edit'])->name('edit');
-    // Route::resource('/',  RoleController::class  , ['only' => ['index','create','show']] );
-    Route::get('master',[ RoleController::class, 'getMasterData'])->name('master');
-    Route::resource('/', RoleController::class)->only(['index','show','store','create']);
-
+    Route::resource('/', RoleController::class);
 });
-
-
-// Route::get('role',[ RoleController::class , 'index'])->name('role.index');
+Route::name('permission.')->prefix('permission/')->group(function(){
+    Route::resource('/', PermissionController::class);
+});
+Route::name('method.')->prefix('method/')->group(function(){
+    Route::resource('/', MethodController::class);
+});
 
 Route::get('package', function() {
     return 'Role & Permission package is working';

@@ -1,12 +1,12 @@
 <?php
 
-namespace Karacraft\Roleperm;
+namespace Karacraft\RolesAndPermissions;
 
 use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Karacraft\Roleperm\Models\Permission;
+use Karacraft\RolesAndPermissions\Models\Permission;
 
 class PermissionsServiceProvider extends ServiceProvider
 {

@@ -7,7 +7,7 @@ Currently, the package is not on packagist. To install it on your own project , 
 
     "repositories": [{
         "type" : "vcs",
-        "url": "https://github.com/Karacraft/roleperm",
+        "url": "https://github.com/Karacraft/RolesAndPermissions",
         "options": {
             "symlink": true
         }
@@ -15,7 +15,7 @@ Currently, the package is not on packagist. To install it on your own project , 
 
 Then
 
-    composer require karacraft/roleperm
+    composer require karacraft/RolesAndPermissions
 
     or 
 
@@ -27,8 +27,26 @@ You can use
 
 to get the following
 
--   Karacraft\Roleperm\RolePermServiceProvider
--   roleperm-helpers
--   roleperm-migrations
--   roleperm-seeders
--   roleperm-traits
+-   Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider
+-   RolesAndPermissions-helpers
+-   RolesAndPermissions-migrations
+-   RolesAndPermissions-seeders
+-   RolesAndPermissions-traits
+-   RolesAndPermissions-config
+
+## Usage  
+
+First of All, Publish the following **Necessary**
+
+    -   RolesAndPermissions-config (Holds all methods for Permissions, Update here before seeding)
+    -   RolesAndPermissions-seeders (Creates all Methods, Permissions & Basic SuperAdmin & User Role) - Super Admin is created here, update it.Ensure user with same name doesn't exists or else it will throw error.
+
+    -   Add following relationships to User Model
+
+        public function roles(){ return $this->belongsToMany(Role::class,'users_roles');}
+        public function permissions(){ return $this->belongsToMany(Permission::class,'users_permissions');}
+
+        Also Add Trait HasPermissionTrait to User Model
+        
+    -   Seed your database
+
