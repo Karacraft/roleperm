@@ -2,18 +2,13 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Roles List
-            <a href="{{ route('role.create') }}" class="pl-2 pr-2 text-sm"><i class="fa fa-file"></i> Create</a>
+            <a href="{{ route('role.create') }}" class="pl-2 pr-2 text-sm text-green-500"><i class="fa fa-file"></i> Create</a>
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-				<div class="block mb-8 px-4 py-4">
-					<a class="text-sm text-white hover:text-red-900 px-4 bg-red-600 rounded-md mx-2	 my-2 py-2" href="{{ route('role.create') }}">
-						{{ __('Create') }}
-					</a>
-				</div>
 			
          	<!-- component -->
 			 <div class="flex flex-col">
@@ -63,7 +58,7 @@
 												<a class="text-sm text-green-600 hover:text-gray-900" href="{{ route('role.edit',$role) }}">
 													{{ __('Edit') }}
 												</a>
-												<form class="inline-block" action="{{ route('role.destroy', $role->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+												<form class="inline-block" action="{{ route('role.destroy', $role) }}" method="POST" onsubmit="return confirm('Are you sure?');">
 													<input type="hidden" name="_method" value="DELETE">
 													<input type="hidden" name="_token" value="{{ csrf_token() }}">
 													<input type="submit" class="text-red-600 hover:text-red-900 mb-2 mr-2" value="Delete">
@@ -104,6 +99,7 @@
 				</div>
        
             </div>
+
         </div>
     </div>
 

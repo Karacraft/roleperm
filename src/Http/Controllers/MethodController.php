@@ -7,35 +7,31 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Karacraft\RolesAndPermissions\Models\Method;
+use Karacraft\RolesAndPermissions\Models\Permission;
+use Karacraft\RolesAndPermissions\Http\Requests\MethodRequest;
 
 class MethodController extends Controller
 {
 
-    private $UNAUTHORIZED_ACCESS_STRING = 'Unauthorzied Access';
     public function __construct(){
         $this->middleware(['web','auth']);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if(auth()->user()->can('show_method'))
-            return view('RolesAndPermissions::methods.index')->with('methods',Method::paginate(5));  
-        abort(403,$this->UNAUTHORIZED_ACCESS_STRING . " to [ View Methods ]\n");
+            return view('RolesAndPermissions::methods.index')->with('methods',Method::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Methods ]\n");
     }
 
     public function create()
     {
         if(auth()->user()->can('create_method'))
             return view('RolesAndPermissions::methods.create'); 
-        abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Create Method ]\n");
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Method ]\n");
     }
 
-    public function store(Request $request)
+    public function store(MethodRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -45,60 +41,40 @@ class MethodController extends Controller
             $method->save();
             DB::commit();
             Session::flash('success',"Method $method->title is created");
+            return redirect()->route('method.index');
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
-        $method = Method::whereTitle($request->title)->first();
-        return redirect()->route('Permission.edit',$method->id);
     }
 
     public function show(Method $method)
     {
-        //
+        if(auth()->user()->can('show_method'))
+            return view('RolesAndPermissions::methods.show',compact('method'));
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Method ]\n");
     }
 
     public function edit(Method $method)
     {
-
+        // if(auth()->user()->can('edit_method'))
+        //     return view('RolesAndPermissions::methods.edit',compact('method'));
+        // abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Method ]\n");
     }
 
-    public function update(RoleRequest $request, Method $method)
+    public function update(MethodRequest $request, Method $method)
     {
-        if($request->id == 1)
-            abort(403,'You cannot edit Super Admin');
-        // dd($request->all());
-        DB::beginTransaction();
-        try {
-            $method = Method::find($request->id);
-            // $method->title = $request->title;
-            $method->description = $request->description;
-            $method->slug = $request->title;
-            $method->save();
-            // Update all user permissions, and set according to Method
-            if ($request->has('permissions'))
-            {
-                $method->permissions()->sync($request->permissions);
-                foreach($method->users as $user)
-                {
-                    $methods = $user->roles;
-                    $user->roles()->sync($method);
-                    $user->permissions()->sync($request->permissions);
-                    // dd($methods);
-                }
-            }
-            DB::commit();
-            Session::flash('success',"Role [$method->title] updated");
-        } catch (\Throwable $th) {
-            DB::rollback();
-            throw $th;
-        }
-        return redirect()->back();
+
     }
 
     public function destroy(Method $method)
     {
+        //TODO:  If this method in use , don't delete
+        $permission = Permission::where('method',$method->title)->first();
+        if($permission)
+            abort(403,"Permission with Method [ $method->title ] exists. Unable to delete");
         $method->delete();
+        Session::flash('success',"Method $method->title deleted");
         return redirect()->route('method.index');
     }
 }

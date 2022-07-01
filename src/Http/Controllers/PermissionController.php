@@ -6,48 +6,37 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Karacraft\RolesAndPermissions\Models\Method;
 use Karacraft\RolesAndPermissions\Models\Permission;
-use Karacraft\RolesAndPermissions\Http\Requests\RoleRequest;
+use Karacraft\RolesAndPermissions\Http\Requests\PermissionRequest;
 
 class PermissionController extends Controller
 {
 
-    private $UNAUTHORIZED_ACCESS_STRING = 'Unauthorzied Access';
     public function __construct(){
         $this->middleware(['web','auth']);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if(auth()->user()->can('show_permission'))
-            return view('RolesAndPermissions::permissions.index')->with('permissions',Permission::paginate(5));  
-        abort(403,$this->UNAUTHORIZED_ACCESS_STRING . " to [ View Permissions ]\n");
+            return view('RolesAndPermissions::permissions.index')->with('permissions',Permission::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         if(auth()->user()->can('create_permission'))
-            return view('RolesAndPermissions::roles.create'); 
-        abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Create Role ]\n");
+        {
+            $models = config('roles-and-permissions.models','models');
+            // dd($models);
+            $methods = Method::all();
+            return view('RolesAndPermissions::permissions.create',compact('methods','models')); 
+        }
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Permission ]\n");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(RoleRequest $request)
+    public function store(PermissionRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -57,57 +46,30 @@ class PermissionController extends Controller
             $permission->save();
             DB::commit();
             Session::flash('success',"Permission $permission->title is created");
+            // TODO: Every new permission, should be given to Super Admin
+            return redirect()->route('Permission.index');
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
-        $permission = Permisson::whereTitle($request->title)->first();
-        return redirect()->route('Permission.edit',$permission->id);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Permisson $role)
+    public function show(Permission $permission)
     {
-        //
+        if(auth()->user()->can('show_permission'))
+            return view('RolesAndPermissions::permissions.show',compact('permission'));
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permission ]\n");
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Permisson  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function edit(Permission $permission)
     {
-        // if(auth()->user()->can('edit_permission'))
-        // {
-        //     $permissions = Permission::all();
-        //     $models = Permission::select('model')->distinct()->get();    
-            
-        //     return view('RolesAndPermissions::roles.edit')
-        //     ->with('role',Role::find($id))
-        //     ->with('models', $models)
-        //     ->with('permissions', $permissions);
-        // }
-        // abort(403,UNAUTHORIZED_ACCESS_STRING . " to [ Edit User ]\n" . CONTACT_IT);
+        if(auth()->user()->can('edit_permission'))
+            return view('RolesAndPermissions::permissions.edit',compact('permission'));
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function update(RoleRequest $request, Role $role)
+    public function update(RoleRequest $request, Permission $permission)
     {
-        if($request->id == 1)
-            abort(403,'You cannot edit Super Admin');
         // dd($request->all());
         DB::beginTransaction();
         try {
@@ -137,15 +99,12 @@ class PermissionController extends Controller
         return redirect()->back();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Role $role)
+    public function destroy(Permission $permission)
     {
-        $role->delete();
-        return redirect()->route('role.index');
+        $p = $permission->users()->where('permission_id',$permission->id)->exists();
+        if ($p)
+            abort(403,"Permission  [ $permission->title ] is in use");
+        $permission->delete();
+        return redirect()->route('permiss$permission.index');
     }
 }

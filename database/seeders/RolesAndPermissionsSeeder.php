@@ -79,7 +79,7 @@ class RolesAndPermissionsSeeder extends Seeder
             User::create([
                 'name' => config('roles-and-permissions.user-info.name', 'name'),
                 'email' => config('roles-and-permissions.user-info.email', 'email'),
-                'password' => Hash::make(config('roles-and-permissions.user-info.password', 'password'),),
+                'password' => Hash::make(config('roles-and-permissions.user-info.password', 'password')),
             ]);
             DB::commit();
         } catch (\Throwable $th) {
