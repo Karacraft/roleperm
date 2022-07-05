@@ -2,6 +2,7 @@
 
 namespace Karacraft\RolesAndPermissions\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PermissionRequest extends FormRequest
@@ -50,10 +51,12 @@ class PermissionRequest extends FormRequest
 
     public function updateRules()
     {
+        $permission = json_decode($this->request->get('permission'));
+        // dd($permission);
         return [
-            'title' => 'required|min:4|unique:permissions,title,' . $this->id ,
-            'model' => 'required|min:4',
-            'method' => 'required|min:4'
+            'title' => 'required|min:4|unique:permissions,title,' . $permission->id,
+            // 'model' => 'required|min:4',
+            // 'method' => 'required|min:4'
         ];
     }
 }

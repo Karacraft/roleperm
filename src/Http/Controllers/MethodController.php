@@ -57,24 +57,38 @@ class MethodController extends Controller
 
     public function edit(Method $method)
     {
-        // if(auth()->user()->can('edit_method'))
-        //     return view('RolesAndPermissions::methods.edit',compact('method'));
-        // abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Method ]\n");
+        if(auth()->user()->can('edit_method'))
+            return view('RolesAndPermissions::methods.edit',compact('method'));
+        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Method ]\n");
     }
 
     public function update(MethodRequest $request, Method $method)
-    {
+    {   
+        $permission = Permission::where('method',$method->title)->first();
+        if($permission)
+            abort(403,"Permission dependent on Method [ $method->title ] exists. Delete the permission to edit the method");
 
+        DB::beginTransaction();
+        try {
+            $method->title = $request->title;
+            $method->slug = $request->title;
+            $method->save();
+            DB::commit();
+            Session::flash('info',"Method $method->title is updated");
+            return redirect()->route('method.index');
+        } catch (\Throwable $th) {
+            DB::rollback();
+            throw $th;
+        }
     }
 
     public function destroy(Method $method)
     {
-        //TODO:  If this method in use , don't delete
         $permission = Permission::where('method',$method->title)->first();
         if($permission)
-            abort(403,"Permission with Method [ $method->title ] exists. Unable to delete");
+            abort(403,"Permission dependent on Method [ $method->title ] exists. Unable to delete");
         $method->delete();
-        Session::flash('success',"Method $method->title deleted");
+        Session::flash('error',"Method $method->title deleted");
         return redirect()->route('method.index');
     }
 }

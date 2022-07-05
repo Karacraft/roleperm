@@ -7,12 +7,12 @@ use DateTimeInterface;
 use Illuminate\Support\Str;
 
 /**
- * NotifyStoreIncharge
+ * NOTE: NOT USING ANYWHERE
  */
 trait RolesAndPermissionsTrait
 {
     //  Route Binding - Learn More : https://laravel.com/docs/7.x/routing#explicit-binding
-    public function getRouteKeyName(){return 'slug';}
+    // public function getRouteKeyName(){return 'slug';}
     /** SETTERS */
     //  Set Slug Value
     public function setSlugAttribute($value)

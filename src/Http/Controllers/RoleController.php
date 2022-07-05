@@ -7,6 +7,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Karacraft\RolesAndPermissions\Models\Role;
+use Karacraft\RolesAndPermissions\Models\Method;
+use Karacraft\RolesAndPermissions\Models\Permission;
 use Karacraft\RolesAndPermissions\Http\Requests\RoleRequest;
 
 class RoleController extends Controller
@@ -58,33 +60,51 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         if(auth()->user()->can('edit_role'))
-        // TODO: Send Permissions attached to this role as well as new one,so that user can add these as well
-            return view('RolesAndPermissions::roles.edit',compact('role'));
+        {
+            $permissions = Permission::all();
+            $models = $permissions->unique('model')->pluck('model');
+            $rolePermissions = $role->permissions;
+            // dd($rolePermissions->search('15',true));
+            return view('RolesAndPermissions::roles.edit',compact('role','permissions','models','rolePermissions'));
+        }
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
     }
 
     public function update(RoleRequest $request, Role $role)
     {
-        if($request->slug == 'super_admin')
+        // dd($request->all());
+        if($role->slug == 'super_admin')
             abort(403,'You cannot edit Super Admin');
-
+        // The Permissions Part
+        if($request->has('updatePermissions'))
+        {
+            DB::beginTransaction();
+            try {
+                $role->permissions()->sync($request->permissions);
+                foreach($role->users as $user)
+                {
+                    $roles = $user->roles;
+                    $user->roles()->sync($role);
+                    $user->permissions()->sync($request->permissions);
+                }
+                DB::commit();
+                Session::flash('info',"Permissions for Role [$role->title] updated");
+                return redirect()->back();
+            } catch (\Throwable $th) {
+                DB::rollback();
+                throw $th;
+            }
+        }
+        //  The Role Part
+        if(count($role->permissions->all()) == 0)
+            abort(403,"[ $role->title ] has permissions attached, remove them first before editing");
+      
         DB::beginTransaction();
         try {
+            $role->title = $request->title;
             $role->description = $request->description;
             $role->slug = $request->title;
             $role->save();
-            // Update all user permissions, and set according to Role
-            //  TODO: Update Permissions
-            // if ($request->has('permissions'))
-            // {
-            //     $role->permissions()->sync($request->permissions);
-            //     foreach($role->users as $user)
-            //     {
-            //         $roles = $user->roles;
-            //         $user->roles()->sync($role);
-            //         $user->permissions()->sync($request->permissions);
-            //     }
-            // }
             DB::commit();
             Session::flash('success',"Role [$role->title] updated");
             return redirect()->back();
@@ -96,7 +116,11 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        if($role->slug == 'super_admin')
+            abort(403,'You cannot delete Super Admin');
+
         $role->delete();
+        Session::flash('success',"Role [$role->title] deleted");
         return redirect()->route('role.index');
     }
 }

@@ -2,10 +2,12 @@
 
 namespace Karacraft\RolesAndPermissions\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Karacraft\RolesAndPermissions\Models\Role;
 use Karacraft\RolesAndPermissions\Models\Method;
 use Karacraft\RolesAndPermissions\Models\Permission;
 use Karacraft\RolesAndPermissions\Http\Requests\PermissionRequest;
@@ -17,11 +19,24 @@ class PermissionController extends Controller
         $this->middleware(['web','auth']);
     }
 
-    public function index()
+    // https://dev.to/kingsconsult/how-to-implement-search-functionality-in-laravel-8-and-laravel-7-downwards-3g76
+    public function index(Request $request)
     {
         if(auth()->user()->can('show_permission'))
-            return view('RolesAndPermissions::permissions.index')->with('permissions',Permission::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        {
+            $search = $request->search;
+            $permissions = Permission::where(function ($query) use ($search){
+                // Keep all where in closure to be effective
+                $query->where('slug','LIKE',"%$search%")
+                ->orWhere('title','LIKE',"%$search%")
+                ->orWhere('method','LIKE',"%$search%");
+            })
+            ->orderBy('id','asc')
+            ->paginate(config('roles-and-permissions.paging-number','paging-number'));
+            return view('RolesAndPermissions::permissions.index')->with('permissions',$permissions); 
+        }
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
+    
     }
 
     public function create()
@@ -29,7 +44,6 @@ class PermissionController extends Controller
         if(auth()->user()->can('create_permission'))
         {
             $models = config('roles-and-permissions.models','models');
-            // dd($models);
             $methods = Method::all();
             return view('RolesAndPermissions::permissions.create',compact('methods','models')); 
         }
@@ -38,16 +52,22 @@ class PermissionController extends Controller
 
     public function store(PermissionRequest $request)
     {
+        $method = Method::findOrFail($request->method);
         DB::beginTransaction();
         try {
-            $permission = new Permisson();
-            $permission->title = $request->title;
-            $permission->slug = $request->title;
+            $permission = new Permission();
+            $permission->title = $method->title . ' ' . $request->model;
+            $permission->slug = $method->title . ' ' . $request->model;
+            $permission->method = $method->title;
+            $permission->model = $request->model;
             $permission->save();
+            $superAdminRole = Role::where('slug','super_admin')->first();
+            $superAdminRole->permissions()->attach($permission);
+            $user = User::where('email',config('roles-and-permissions.user-info.email', 'email'))->first();
+            $user->permissions()->attach($permission);
             DB::commit();
             Session::flash('success',"Permission $permission->title is created");
-            // TODO: Every new permission, should be given to Super Admin
-            return redirect()->route('Permission.index');
+            return redirect()->route('permission.index');
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
@@ -68,35 +88,21 @@ class PermissionController extends Controller
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
     }
 
-    public function update(RoleRequest $request, Permission $permission)
+    public function update(PermissionRequest $request, Permission $permission)
     {
-        // dd($request->all());
         DB::beginTransaction();
         try {
-            $role = Role::find($request->id);
-            // $role->title = $request->title;
-            $role->description = $request->description;
-            $role->slug = $request->title;
-            $role->save();
-            // Update all user permissions, and set according to Role
-            if ($request->has('permissions'))
-            {
-                $role->permissions()->sync($request->permissions);
-                foreach($role->users as $user)
-                {
-                    $roles = $user->roles;
-                    $user->roles()->sync($role);
-                    $user->permissions()->sync($request->permissions);
-                    // dd($roles);
-                }
-            }
+            $permission = Permission::find($permission->id);
+            $permission->title = $request->title;
+            $permission->slug = $request->title;
+            $permission->save();
             DB::commit();
-            Session::flash('success',"Role [$role->title] updated");
+            Session::flash('info',"Role [$permission->title] updated");
+            return redirect()->back();
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
         }
-        return redirect()->back();
     }
 
     public function destroy(Permission $permission)
@@ -105,6 +111,7 @@ class PermissionController extends Controller
         if ($p)
             abort(403,"Permission  [ $permission->title ] is in use");
         $permission->delete();
-        return redirect()->route('permiss$permission.index');
+        Session::flash('error',"Permission $permission->title deleted");
+        return redirect()->route('permission.index');
     }
 }

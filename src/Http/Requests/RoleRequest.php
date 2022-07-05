@@ -2,6 +2,7 @@
 
 namespace Karacraft\RolesAndPermissions\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RoleRequest extends FormRequest
@@ -33,8 +34,18 @@ class RoleRequest extends FormRequest
         {
             return $this->createRules();
         }
-        else if ($this->isMethod('put')){
-            return $this->updateRules();
+        else if ($this->isMethod('put'))
+        {
+            // If we are updating only permissions
+            if($this->has('updatePermissions'))
+            {
+                return $this->noRules();
+            }
+            else 
+            {
+                //  If we are updating role
+                return $this->updateRules();
+            }
         }
     }
 
@@ -48,9 +59,19 @@ class RoleRequest extends FormRequest
 
     public function updateRules()
     {
+        //'email' => 'required|email|unique:users|regex:/^[A-Za-z0-9\.]*@(auvitronics)[.](com)$/',
+        // https://stackoverflow.com/a/56851217/4853427
+        $role = json_decode($this->request->get('role'));
+        // dd($this->request->all());
+        // unique:table,column,except,idColumn
         return [
-            'title' => 'required|min:4|unique:roles,title,' . $this->id ,
+            'title' => 'required|unique:permissions|min:4|unique:roles,title,' .$role->id,
             'description' => 'required|min:10',
         ];
+    }
+
+    public function noRules()
+    {
+        return [];
     }
 }
