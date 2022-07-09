@@ -8,7 +8,7 @@ Currently, the package is not on packagist. To install it on your own project , 
 
     "repositories": [{
         "type" : "vcs",
-        "url": "https://github.com/Karacraft/RolesAndPermissions",
+        "url": "https://github.com/Karacraft/roleperm",
         "options": {
             "symlink": true
         }
@@ -16,7 +16,7 @@ Currently, the package is not on packagist. To install it on your own project , 
 
 Then
 
-    composer require karacraft/RolesAndPermissions
+    composer require karacraft/roleperm
 
     or 
 
