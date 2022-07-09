@@ -36,8 +36,9 @@ class Base extends Model
     }
     public function setSlugAttribute($value)
     {
-        $this->attributes['slug'] = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '_', $value)));
+        $this->attributes['slug'] = strtolower(trim(preg_replace("'@[^A-Za-z0-9\w\ ]@'", '_', $value)));
     }
+    
     public function setMethodAttribute($value)
     {
         $this->attributes['method'] = ucwords($value);

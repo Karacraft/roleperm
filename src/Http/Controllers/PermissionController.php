@@ -23,8 +23,20 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         if(auth()->user()->can('show_permission'))
-            return view('RolesAndPermissions::permissions.index')->with('permissions',Permission::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        {
+            $search = $request->search;
+            $permissions = Permission::where(function ($query) use ($search){
+                // Keep all where in closure to be effective
+                $query->where('slug','LIKE',"%$search%")
+                ->orWhere('title','LIKE',"%$search%")
+                ->orWhere('method','LIKE',"%$search%");
+            })
+            ->orderBy('id','asc')
+            ->paginate(config('roles-and-permissions.paging-number','paging-number'));
+            return view('RolesAndPermissions::permissions.index')->with('permissions',$permissions); 
+        }
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
+    
     }
 
     public function create()
@@ -78,7 +90,6 @@ class PermissionController extends Controller
 
     public function update(Request $request, Permission $permission)
     {
-        // dd($request->all());
         DB::beginTransaction();
         try {
             $role = Role::find($request->id);
@@ -103,7 +114,6 @@ class PermissionController extends Controller
             DB::rollback();
             throw $th;
         }
-        return redirect()->back();
     }
 
     public function destroy(Permission $permission)

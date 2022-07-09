@@ -72,7 +72,7 @@ class RoleController extends Controller
 
     public function update(RoleRequest $request, Role $role)
     {
-        dd($request->all());
+        // dd($request->all());
         if($role->slug == 'super_admin')
             abort(403,'You cannot edit Super Admin');
         // The Permissions Part
@@ -103,6 +103,7 @@ class RoleController extends Controller
       
         DB::beginTransaction();
         try {
+            $role->title = $request->title;
             $role->description = $request->description;
             $role->slug = $request->title;
             $role->save();

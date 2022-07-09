@@ -7,7 +7,7 @@ use DateTimeInterface;
 use Illuminate\Support\Str;
 
 /**
- * NotifyStoreIncharge
+ * NOTE: NOT USING ANYWHERE
  */
 trait RolesAndPermissionsTrait
 {
