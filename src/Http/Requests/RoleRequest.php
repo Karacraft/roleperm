@@ -33,8 +33,17 @@ class RoleRequest extends FormRequest
         {
             return $this->createRules();
         }
-        else if ($this->isMethod('put')){
-            return $this->updateRules();
+        else if ($this->isMethod('put'))
+        {
+            // If we are updating only permissions
+            if($this->has('updatePermissions'))
+            {
+                return $this->noRules();
+            }else 
+            {
+                //  If we are updating role
+                return $this->updateRules();
+            }
         }
     }
 
@@ -49,8 +58,13 @@ class RoleRequest extends FormRequest
     public function updateRules()
     {
         return [
-            'title' => 'required|min:4|unique:roles,title,' . $this->id ,
+            'title' => 'required|min:4|unique:roles,title,'.$this->id ,
             'description' => 'required|min:10',
         ];
+    }
+
+    public function noRules()
+    {
+        return [];
     }
 }

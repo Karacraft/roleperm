@@ -49,9 +49,9 @@
 												<a class="text-sm text-indigo-600 hover:text-gray-900" href="{{ route('method.show',$method) }}">
 													{{ __('View') }}
 												</a>
-												{{-- <a class="text-sm text-green-600 hover:text-gray-900" href="{{ route('method.edit',$method) }}">
+												<a class="text-sm text-green-600 hover:text-gray-900" href="{{ route('method.edit',$method) }}">
 													{{ __('Edit') }}
-												</a> --}}
+												</a>
 												<form class="inline-block" action="{{ route('method.destroy', $method) }}" method="POST" onsubmit="return confirm('Are you sure?');">
 													<input type="hidden" name="_method" value="DELETE">
 													<input type="hidden" name="_token" value="{{ csrf_token() }}">

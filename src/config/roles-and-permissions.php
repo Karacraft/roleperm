@@ -7,7 +7,7 @@ return [
      */
 
     'permission-methods' => [
-        'Create','Update','Delete','Edit','Show'
+        'Create','Update','Delete','Edit','Show','Approve','Reject'
     ],
 
     /**

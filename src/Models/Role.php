@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\DB;
 use Karacraft\RolesAndPermissions\Models\Base;
 use Karacraft\RolesAndPermissions\Models\Permission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Karacraft\RolesAndPermissions\Traits\RolesAndPermissionsTrait;
 
 class Role extends Base
 {
-    use HasFactory, RolesAndPermissionsTrait;
+    use HasFactory;
 
     protected $table = 'roles';
     protected $fillable = ['title','description','slug'];

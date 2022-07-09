@@ -13,17 +13,17 @@
                         @csrf
     
                         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                            <!-- Title -->
+                            {{-- <!-- Title -->
                             <div class="col-span-6 sm:col-span-4">
                                 <x-jet-label for="title" value="{{ __('Title') }}" />
                                 <x-jet-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" />
                                 <x-jet-input-error for="title" class="mt-2" />
-                            </div>
+                            </div> --}}
 
                             <!-- Model -->
                             <div class="col-span-6 sm:col-span-4">
                                 <x-jet-label for="model" value="{{ __('Model') }}" />
-                                <select name="model" id="model" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                                <select name="model" id="model" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" required>
                                     <option value="">--Select</option>
                                     @for ($i = 0; $i < count($models); $i++)
                                         <option value="{{ $models[$i] }}">{{ $models[$i] }}</option>
@@ -36,7 +36,7 @@
                             <!-- Method -->
                             <div class="col-span-6 sm:col-span-4">
                                 <x-jet-label for="method" value="{{ __('Method') }}" />
-                                <select name="method" id="method" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                                <select name="method" id="method" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" required>
                                     <option value="">--Select</option>
                                     @foreach ($methods as $method)
                                         <option value="{{ $method->id }}">{{ $method->title }}</option>

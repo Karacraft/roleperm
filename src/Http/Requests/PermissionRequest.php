@@ -51,7 +51,7 @@ class PermissionRequest extends FormRequest
     public function updateRules()
     {
         return [
-            'title' => 'required|min:4|unique:permissions,title,' . $this->id ,
+            'title' => 'required|min:4|unique:permissions,title,'.$this->permission->id ,
             'model' => 'required|min:4',
             'method' => 'required|min:4'
         ];
