@@ -28,24 +28,25 @@ You can use
 
 to get the following
 
--   Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider
--   RolesAndPermissions-helpers
--   RolesAndPermissions-migrations
--   RolesAndPermissions-seeders
--   RolesAndPermissions-traits
--   RolesAndPermissions-config
+-   Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider  
+-   RolesAndPermissions-helpers  
+-   RolesAndPermissions-migrations  
+-   RolesAndPermissions-seeders   
+-   RolesAndPermissions-traits  
+-   RolesAndPermissions-config  
 
 ## Usage  
 
 First of All, Publish the following **Necessary**
 
-    RolesAndPermissions-config (Holds all methods for Permissions, Update here before seeding)  
-    RolesAndPermissions-seeders (Creates all Methods, Permissions & Basic SuperAdmin & User Role) - Super Admin is created here, update it.  Ensure user with same name doesn't exists or else it will throw error.  
+    RolesAndPermissions-config (Holds all methods for Permissions, Update here before seeding)    
+    RolesAndPermissions-seeders (Creates all Methods, Permissions & Basic SuperAdmin & User Role)   
+        - Super Admin is created here, update it.  Ensure user with same name doesn't exists or else it will throw error.    
 
 Add following relationships to User Model  
 
-    public function roles(){ return $this->belongsToMany(Role::class,'users_roles');}  
-    public function permissions(){ return $this->belongsToMany(Permission::class,'users_permissions');}  
+    public function roles(){ return $this->belongsToMany(Role::class,'users_roles');}    
+    public function permissions(){ return $this->belongsToMany(Permission::class,'users_permissions');}   
 
 Also Add   
 
