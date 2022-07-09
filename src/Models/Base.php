@@ -36,7 +36,11 @@ class Base extends Model
     }
     public function setSlugAttribute($value)
     {
-        $this->attributes['slug'] = strtolower(trim(preg_replace("'@[^A-Za-z0-9\w\ ]@'", '_', $value)));
+        $slug = trim($value); // trim the string
+        $slug= preg_replace('/[^a-zA-Z0-9 -]/','',$slug ); // only take alphanumerical characters, but keep the spaces and dashes too...
+        $slug= str_replace(' ','_', $slug); // replace spaces by dashes
+        $slug= strtolower($slug);  // make it lowercase
+        $this->attributes['slug'] = $slug;
     }
     
     public function setMethodAttribute($value)
