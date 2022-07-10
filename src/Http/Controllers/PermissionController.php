@@ -50,23 +50,32 @@ class PermissionController extends Controller
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Permission ]\n");
     }
 
-    public function store(Request $request)
+    public function store(PermissionRequest $request)
     {
-        $method = Method::findOrFail($request->method);
+        // dd($request->all());
+        $methods = $request->method; // Array
+        // $method = Method::findOrFail($request->method);
         DB::beginTransaction();
         try {
-            $permission = new Permission();
-            $permission->title = $method->title . ' ' . $request->model;
-            $permission->slug = $method->title . ' ' . $request->model;
-            $permission->method = $method->title;
-            $permission->model = $request->model;
-            $permission->save();
-            $superAdminRole = Role::where('slug','super_admin')->first();
-            $superAdminRole->permissions()->attach($permission);
-            $user = User::where('email',config('roles-and-permissions.user-info.email', 'email'))->first();
-            $user->permissions()->attach($permission);
+            foreach ($methods as $method) {
+                $m = Method::findOrFail($method);
+                $p = Permission::whereMethod($m->title)->whereModel($request->model)->first();
+                if(!$p)
+                {
+                    $permission = new Permission();
+                    $permission->title = $m->title . ' ' . $request->model;
+                    $permission->slug = $m->title . ' ' . $request->model;
+                    $permission->method = $m->title;
+                    $permission->model = $request->model;
+                    $permission->save();
+                    $superAdminRole = Role::where('slug','super_admin')->first();
+                    $superAdminRole->permissions()->attach($permission);
+                    $user = User::where('email',config('roles-and-permissions.user-info.email', 'email'))->first();
+                    $user->permissions()->attach($permission);
+                }
+            }
             DB::commit();
-            Session::flash('success',"Permission $permission->title is created");
+            Session::flash('success',"Permissions created");
             return redirect()->route('permission.index');
         } catch (\Throwable $th) {
             DB::rollback();

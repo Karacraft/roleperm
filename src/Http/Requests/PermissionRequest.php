@@ -25,44 +25,20 @@ class PermissionRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'title' => 'required|unique:permissions|min:4',
-            'model' => 'required|min:4',
-            'method' => 'required|min:4'
-        ];
         //  Use Alterantes
         if ($this->isMethod('post'))
         {
-            return $this->createRules();
+            return [
+                // 'title' => 'required|unique:permissions|min:4',
+                'model' => 'required|min:4',
+                'method' => 'required|array|min:1'
+            ];
         }
         else if ($this->isMethod('put')){
-            return $this->updateRules();
+            $permission = json_decode($this->request->get('permission'));
+            return [
+               
+            ];
         }
-    }
-
-    public function createRules()
-    {
-        return [
-            'title' => 'required|unique:permissions|min:4',
-            'model' => 'required|min:4',
-            'method' => 'required|min:4'
-        ];
-    }
-
-    public function updateRules()
-    {
-        $permission = json_decode($this->request->get('permission'));
-        // dd($permission);
-        return [
-<<<<<<< HEAD
-            'title' => 'required|min:4|unique:permissions,title,'.$this->permission->id ,
-            'model' => 'required|min:4',
-            'method' => 'required|min:4'
-=======
-            'title' => 'required|min:4|unique:permissions,title,' . $permission->id,
-            // 'model' => 'required|min:4',
-            // 'method' => 'required|min:4'
->>>>>>> d36e5af51167234458e2209070b4f2e4ebfe9ad2
-        ];
     }
 }

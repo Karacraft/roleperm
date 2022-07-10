@@ -35,15 +35,17 @@
                             
                             <!-- Method -->
                             <div class="col-span-6 sm:col-span-4">
-                                <x-jet-label for="method" value="{{ __('Method') }}" />
-                                <select name="method" id="method" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" required>
-                                    <option value="">--Select</option>
-                                    @foreach ($methods as $method)
-                                        <option value="{{ $method->id }}">{{ $method->title }}</option>
-                                    @endforeach
-                                </select>
-                                <x-jet-input-error for="method" class="mt-2" />
+                                <x-jet-label for="method" value="{{ __('Methods') }}" />
+                                @foreach ($methods as $method)
+                                <div class="flex flex-auto mt-4">
+                                    <label for="method[]" class="flex items-center justify-between mr-2">
+                                        <input type="checkbox" name="method[]" id="method" value="{{ $method->id }}" class="'rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'">
+                                        <x-jet-label for="method" value="{{ $method->title }}" />
+                                    </label>
+                                </div>
+                                @endforeach
                             </div>
+                            <x-jet-input-error for="method" class="mt-2" />
 
                             {{-- Submit Button --}}
                             <x-jet-button class="mt-4">
