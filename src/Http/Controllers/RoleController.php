@@ -21,7 +21,17 @@ class RoleController extends Controller
     public function index()
     {
         if(auth()->user()->can('show_role'))
-            return view('RolesAndPermissions::roles.index')->with('roles',Role::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        {
+            $search = $request->search;
+            $roles = Role::where(function ($query) use ($search){
+                // Keep all where in closure to be effective
+                $query->where('slug','LIKE',"%$search%")
+                ->orWhere('title','LIKE',"%$search%");
+            })
+            ->orderBy('id','asc')
+            ->paginate(config('roles-and-permissions.paging-number','paging-number'));
+            return view('RolesAndPermissions::roles.index')->with('roles',$roles); 
+        }
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Roles ]\n");
     }
 

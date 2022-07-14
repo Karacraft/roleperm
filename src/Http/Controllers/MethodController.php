@@ -20,7 +20,17 @@ class MethodController extends Controller
     public function index()
     {
         if(auth()->user()->can('show_method'))
-            return view('RolesAndPermissions::methods.index')->with('methods',Method::paginate(config('roles-and-permissions.paging-number','paging-number'))); 
+        {
+            $search = $request->search;
+            $methods = Method::where(function ($query) use ($search){
+                // Keep all where in closure to be effective
+                $query->where('slug','LIKE',"%$search%")
+                ->orWhere('title','LIKE',"%$search%");
+            })
+            ->orderBy('id','asc')
+            ->paginate(config('roles-and-permissions.paging-number','paging-number'));
+            return view('RolesAndPermissions::methods.index')->with('methods',$methods); 
+        }
         abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Methods ]\n");
     }
 
