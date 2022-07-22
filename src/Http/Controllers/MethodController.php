@@ -17,7 +17,7 @@ class MethodController extends Controller
         $this->middleware(['web','auth']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         if(auth()->user()->can('show_method'))
         {
