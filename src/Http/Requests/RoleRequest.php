@@ -40,12 +40,7 @@ class RoleRequest extends FormRequest
             if($this->has('updatePermissions'))
             {
                 return $this->noRules();
-<<<<<<< HEAD
             }else 
-=======
-            }
-            else 
->>>>>>> d36e5af51167234458e2209070b4f2e4ebfe9ad2
             {
                 //  If we are updating role
                 return $this->updateRules();
