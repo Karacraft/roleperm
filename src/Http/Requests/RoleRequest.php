@@ -64,11 +64,7 @@ class RoleRequest extends FormRequest
         // dd($this->request->all());
         // unique:table,column,except,idColumn
         return [
-<<<<<<< HEAD
-            'title' => 'required|min:4|unique:roles,title,'.$this->id ,
-=======
             'title' => 'required|unique:permissions|min:4|unique:roles,title,' .$role->id,
->>>>>>> d36e5af51167234458e2209070b4f2e4ebfe9ad2
             'description' => 'required|min:10',
         ];
     }
