@@ -15,42 +15,42 @@
                         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
                             {{-- <!-- Title -->
                             <div class="col-span-6 sm:col-span-4">
-                                <x-jet-label for="title" value="{{ __('Title') }}" />
-                                <x-jet-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" />
-                                <x-jet-input-error for="title" class="mt-2" />
+                                <x-label for="title" value="{{ __('Title') }}" />
+                                <x-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" />
+                                <x-input-error for="title" class="mt-2" />
                             </div> --}}
 
                             <!-- Model -->
                             <div class="col-span-6 sm:col-span-4">
-                                <x-jet-label for="model" value="{{ __('Model') }}" />
+                                <x-label for="model" value="{{ __('Model') }}" />
                                 <select name="model" id="model" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" required>
                                     <option value="">--Select</option>
                                     @for ($i = 0; $i < count($models); $i++)
                                         <option value="{{ $models[$i] }}">{{ $models[$i] }}</option>
                                     @endfor
                                 </select>
-                                <x-jet-input-error for="model" class="mt-2" />
+                                <x-input-error for="model" class="mt-2" />
                             </div>
 
                             
                             <!-- Method -->
                             <div class="col-span-6 sm:col-span-4">
-                                <x-jet-label for="method" value="{{ __('Methods') }}" />
+                                <x-label for="method" value="{{ __('Methods') }}" />
                                 @foreach ($methods as $method)
                                 <div class="flex flex-auto mt-4">
                                     <label for="method[]" class="flex items-center justify-between mr-2">
                                         <input type="checkbox" name="method[]" id="method" value="{{ $method->id }}" class="'rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'">
-                                        <x-jet-label for="method" value="{{ $method->title }}" />
+                                        <x-label for="method" value="{{ $method->title }}" />
                                     </label>
                                 </div>
                                 @endforeach
                             </div>
-                            <x-jet-input-error for="method" class="mt-2" />
+                            <x-input-error for="method" class="mt-2" />
 
                             {{-- Submit Button --}}
-                            <x-jet-button class="mt-4">
+                            <x-button class="mt-4">
                                 {{ __('Submit') }}
-                            </x-jet-button>
+                            </x-button>
         
                         </div>
                         

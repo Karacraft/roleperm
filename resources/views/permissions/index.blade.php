@@ -13,7 +13,7 @@
 				{{-- Search  --}}
 				<div class="p-6">
 					<form action="{{ route('permission.index') }}" method="GET" role="search">
-						<x-jet-input id="search" class="block mt-1 w-full" type="search" name="search" :value="old('search')" autofocus placeholder="Search Database..."/>
+						<x-input id="search" class="block mt-1 w-full" type="search" name="search" :value="old('search')" autofocus placeholder="Search Database..."/>
 					</form>
 				</div>
 				<!-- component -->

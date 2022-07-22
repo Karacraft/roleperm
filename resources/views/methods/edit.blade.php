@@ -17,16 +17,16 @@
                         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
                             <!-- Title -->
                             <div class="col-span-6 sm:col-span-4">
-                                <x-jet-label for="title" value="{{ __('Title') }}" />
-                                <x-jet-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" value="{{ $method->title }}" />
-                                <x-jet-input-error for="title" class="mt-2" />
+                                <x-label for="title" value="{{ __('Title') }}" />
+                                <x-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" value="{{ $method->title }}" />
+                                <x-input-error for="title" class="mt-2" />
                             </div>
 
                          
                             {{-- Submit Button --}}
-                            <x-jet-button class="mt-4">
+                            <x-button class="mt-4">
                                 {{ __('Submit') }}
-                            </x-jet-button>
+                            </x-button>
         
                         </div>
                         
