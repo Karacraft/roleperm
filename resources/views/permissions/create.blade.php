@@ -29,7 +29,8 @@
                                         <option value="{{ $models[$i] }}">{{ $models[$i] }}</option>
                                     @endfor
                                 </select>
-                                @if ($errors->has('method')) <p class="text-red-500 mt-2">{{ $errors->first('method') }}</p>@endif
+                                <x-input-error for="model" class="mt-2" />
+                                {{-- @if ($errors->has('method')) <p class="text-red-500 mt-2">{{ $errors->first('method') }}</p>@endif --}}
                             </div>
 
                             
@@ -45,7 +46,8 @@
                                 </div>
                                 @endforeach
                             </div>
-                            @if ($errors->has('method')) <p class="text-red-500 mt-2">{{ $errors->first('method') }}</p>@endif
+                            <x-input-error for="method" class="mt-2" />
+                            {{-- @if ($errors->has('method')) <p class="text-red-500 mt-2">{{ $errors->first('method') }}</p>@endif --}}
 
                             {{-- Submit Button --}}
                             <x-button class="mt-4">

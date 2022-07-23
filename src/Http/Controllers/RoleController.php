@@ -32,14 +32,16 @@ class RoleController extends Controller
             ->paginate(config('roles-and-permissions.paging-number','paging-number'));
             return view('RolesAndPermissions::roles.index')->with('roles',$roles); 
         }
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Roles ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Roles ]\n");
+        return redirect()->back();
     }
 
     public function create()
     {
         if(auth()->user()->can('create_role'))
             return view('RolesAndPermissions::roles.create'); 
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Role ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Create Role ]\n");
+        return redirect()->back();
     }
 
     public function store(RoleRequest $request)
@@ -64,7 +66,8 @@ class RoleController extends Controller
     {
         if(auth()->user()->can('show_role'))
             return view('RolesAndPermissions::roles.show',compact('role'));
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Role ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Role ]\n");
+        return redirect()->back();
     }
 
     public function edit(Role $role)
@@ -77,15 +80,21 @@ class RoleController extends Controller
             // dd($rolePermissions->search('15',true));
             return view('RolesAndPermissions::roles.edit',compact('role','permissions','models','rolePermissions'));
         }
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
+        // abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
+        return redirect()->back();
+        
     }
 
     public function update(RoleRequest $request, Role $role)
     {
         // dd($request->all());
         if($role->slug == 'super_admin')
-            abort(403,'You cannot edit Super Admin');
-        // The Permissions Part
+        {
+            Session::flash('error','You cannot edit Super Admin');
+            return redirect()->back();
+        }
+        
         if($request->has('updatePermissions'))
         {
             DB::beginTransaction();
@@ -109,7 +118,10 @@ class RoleController extends Controller
    
             
         if(count($role->permissions->all()) == 0)
-            abort(403,"[ $role->title ] has permissions attached, remove them first before editing");
+        {
+            Session::flash('error',"[ $role->title ] has permissions attached, remove them first before editing");
+            return redirect()->back();
+        }
       
         DB::beginTransaction();
         try {
@@ -129,10 +141,13 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         if($role->slug == 'super_admin')
-            abort(403,'You cannot delete Super Admin');
+        {
+            Session::flash('error','You cannot delete Super Admin');
+            return redirect()->back();
+        }
 
         $role->delete();
-        Session::flash('success',"Role [$role->title] deleted");
+        Session::flash('error',"Role [$role->title] deleted");
         return redirect()->route('role.index');
     }
 }

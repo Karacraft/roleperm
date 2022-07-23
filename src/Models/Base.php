@@ -14,11 +14,7 @@ class Base extends Model
         'updated_at' => 'datetime:d-m-Y',
         'created_at' => 'datetime:d-m-Y',
     ];
-    /**
-     * Allows to sum up columns in a row
-     *
-     * @return $collection
-     */
+   
     public function getAttributeSum(){
         $sum = 0;
         foreach(func_get_args() as $attribute){
@@ -27,9 +23,6 @@ class Base extends Model
         return $sum;
     }
 
-    /**
-     * Set Title Attribute & Slug
-     */
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = ucwords($value);

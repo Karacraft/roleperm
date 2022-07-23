@@ -15,25 +15,32 @@ class RolesAndPermissionsServiceProvider extends ServiceProvider
     
     public function register()
     {
-        //
     }
 
     public function boot(Kernel $kernel)
     {
-        /*************************-Apply Globallay-*****************/
-        // $kernel->pushMiddleware(RoleMiddleware::class);  FIXME: THis is not allowing hasRole()
-
         $this->loadRoutesFrom(__DIR__.'/routes/web.php');   //  Load Routes
-        $this->loadViewsFrom(__DIR__.'/../resources/views','RolesAndPermissions'); //  Load Views
+        $this->loadViewsFrom(__DIR__.'/../resources/views','RolesAndPermissions'); //  Load Views - 'RolesAndPermissions' Ensure, views can be loaded by using this namesapce
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');  //  Load Migrations - ENsure proper timestamps and no stub
+        // Load anonymous components
+        $this->loadViewsFrom(__DIR__.'/components','components'); //  Load Views
+        Blade::component('components::button', 'button');
+        Blade::component('components::content', 'content');
+        Blade::component('components::create-button', 'create-button');
+        Blade::component('components::crud', 'crud');
+        Blade::component('components::input-error', 'input-error');
+        Blade::component('components::input', 'input');
+        Blade::component('components::label', 'label');
+        Blade::component('components::page-header', 'page-header');
+        Blade::component('components::pagination', 'pagination');
+        Blade::component('components::search', 'search');
+        Blade::component('components::table', 'table');
+        Blade::component('components::td', 'td');
+        Blade::component('components::th', 'th');
 
         if( $this->app->runningInConsole()){
             $this->publishResources();
         }
-
-        /*************************-Route Middleware-*****************/
-        // $router = $this->app->make(Router::class);
-        // $router->aliasMiddleware('role',RoleMiddleware::class);
     }
 
     protected function publishResources()

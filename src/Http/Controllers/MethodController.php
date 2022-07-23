@@ -31,14 +31,16 @@ class MethodController extends Controller
             ->paginate(config('roles-and-permissions.paging-number','paging-number'));
             return view('RolesAndPermissions::methods.index')->with('methods',$methods); 
         }
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Methods ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Methods ]\n");
+        return redirect()->back();
     }
 
     public function create()
     {
         if(auth()->user()->can('create_method'))
             return view('RolesAndPermissions::methods.create'); 
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Method ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Create Methods ]\n");
+        return redirect()->back();
     }
 
     public function store(MethodRequest $request)
@@ -62,21 +64,26 @@ class MethodController extends Controller
     {
         if(auth()->user()->can('show_method'))
             return view('RolesAndPermissions::methods.show',compact('method'));
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Method ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Methods ]\n");
+        return redirect()->back();
     }
 
     public function edit(Method $method)
     {
         if(auth()->user()->can('edit_method'))
             return view('RolesAndPermissions::methods.edit',compact('method'));
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Method ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Methods ]\n");
+        return redirect()->back();
     }
 
     public function update(MethodRequest $request, Method $method)
     {   
         $permission = Permission::where('method',$method->title)->first();
         if($permission)
-            abort(403,"Permission dependent on Method [ $method->title ] exists. Delete the permission to edit the method");
+        {
+            Session::flash('error',"Permission dependent on Method [ $method->title ] exists. Delete the permission to edit the method");
+            return redirect()->back();
+        }
 
         DB::beginTransaction();
         try {
@@ -96,7 +103,10 @@ class MethodController extends Controller
     {
         $permission = Permission::where('method',$method->title)->first();
         if($permission)
-            abort(403,"Permission dependent on Method [ $method->title ] exists. Unable to delete");
+        {
+            Session::flash('error',"Method $method->title deleted");
+            return redirect()->back();
+        }
         $method->delete();
         Session::flash('error',"Method $method->title deleted");
         return redirect()->route('method.index');

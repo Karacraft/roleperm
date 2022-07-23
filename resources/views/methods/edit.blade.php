@@ -19,7 +19,8 @@
                             <div class="col-span-6 sm:col-span-4">
                                 <x-label for="title" value="{{ __('Title') }}" />
                                 <x-input name="title" id="title" type="text" class="mt-1 block w-full" autocomplete="title" value="{{ $method->title }}" />
-                                @if ($errors->has('title')) <p class="text-red-500 mt-2">{{ $errors->first('title') }}</p>@endif
+                                <x-input-error for="title" class="mt-2" />
+                                    {{-- @if ($errors->has('title')) <p class="text-red-500 mt-2">{{ $errors->first('title') }}</p>@endif --}}
                             </div>
 
                          

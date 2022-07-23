@@ -35,7 +35,8 @@ class PermissionController extends Controller
             ->paginate(config('roles-and-permissions.paging-number','paging-number'));
             return view('RolesAndPermissions::permissions.index')->with('permissions',$permissions); 
         }
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
+        return redirect()->back();
     
     }
 
@@ -47,7 +48,9 @@ class PermissionController extends Controller
             $methods = Method::all();
             return view('RolesAndPermissions::permissions.create',compact('methods','models')); 
         }
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Create Permission ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Create Permissions ]\n");
+        return redirect()->back();
+
     }
 
     public function store(PermissionRequest $request)
@@ -87,14 +90,16 @@ class PermissionController extends Controller
     {
         if(auth()->user()->can('show_permission'))
             return view('RolesAndPermissions::permissions.show',compact('permission'));
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ View Permission ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ View Permissions ]\n");
+        return redirect()->back();
     }
 
     public function edit(Permission $permission)
     {
         if(auth()->user()->can('edit_permission'))
             return view('RolesAndPermissions::permissions.edit',compact('permission'));
-        abort(403,config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Role ]\n");
+        Session::flash('error',config('roles-and-permissions.unauthorized_access_string') . " to [ Edit Permissions ]\n");
+        return redirect()->back();
     }
 
     public function update(Request $request, Permission $permission)
@@ -129,7 +134,10 @@ class PermissionController extends Controller
     {
         $p = $permission->users()->where('permission_id',$permission->id)->exists();
         if ($p)
-            abort(403,"Permission  [ $permission->title ] is in use");
+        {
+            Session::flash('error',"Permission  [ $permission->title ] is in use");
+            return redirect()->back();
+        }
         $permission->delete();
         Session::flash('error',"Permission $permission->title deleted");
         return redirect()->route('permission.index');
