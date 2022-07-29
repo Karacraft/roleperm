@@ -14,7 +14,7 @@ return [
      * User information for Super Admin. This will be created at the time of Seeding.
      * Don't remove it, just change as per your liking
      */
-    'user-info' => [
+    'user-info-1' => [
         'name' => 'Ali Jibran',
         'email' => 'dukejib@gmail.com',
         'password' => 'abc123',
