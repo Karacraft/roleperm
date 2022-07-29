@@ -1,8 +1,8 @@
 <x-app-layout>
 	
-    <x-header>
+    <x-page-header>
 		Roles
-	</x-header>
+	</x-page-header>
 
 	<x-content>
 		{{-- Your Data Here --}}
