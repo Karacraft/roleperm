@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Hash;
 class RolesAndPermissionsSeeder extends Seeder
 {
     private $methods;
+    private $models;
 
     public function run()
     {
         $this->methods = config('roles-and-permissions.permission-methods', 'permission-methods');
+        $this->models = config('roles-and-permissions.models','models');
 
         $this->createBaseMethods();
         $this->createBasePermissions();
@@ -44,12 +46,11 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         DB::beginTransaction();
         try {
-            for ($i=0; $i < count($this->methods); $i++) { 
-                Permission::create(['title' => $this->methods[$i] . ' User','slug' => $this->methods[$i] . ' User', 'method' => $this->methods[$i] , 'model' => 'User' ]);
-                Permission::create(['title' => $this->methods[$i] . ' Permission','slug' => $this->methods[$i] . ' Permission', 'method' => $this->methods[$i], 'model' => 'Permission' ]);
-                Permission::create(['title' => $this->methods[$i] . ' Role','slug' => $this->methods[$i] . ' Role', 'method' => $this->methods[$i] , 'model' => 'Role' ]);
-                Permission::create(['title' => $this->methods[$i] . ' Method','slug' => $this->methods[$i] . ' Method', 'method' => $this->methods[$i] , 'model' => 'Method' ]);
-            }
+            for ($j=0; $j < count($this->models); $j++){
+                for ($i=0; $i < count($this->methods); $i++) { 
+                    Permission::create(['title' => $this->methods[$i] . " " . $this->models[$j],'slug' => $this->methods[$i] . " " . $this->models[$j], 'method' => $this->methods[$i] , 'model' => $this->models[$j] ]);
+                }
+            } 
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
@@ -77,9 +78,9 @@ class RolesAndPermissionsSeeder extends Seeder
         try {
             //  User Model
             User::create([
-                'name' => config('roles-and-permissions.user-info.name', 'name'),
-                'email' => config('roles-and-permissions.user-info.email', 'email'),
-                'password' => Hash::make(config('roles-and-permissions.user-info.password', 'password')),
+                'name' => config('roles-and-permissions.user-info-1.name', 'name'),
+                'email' => config('roles-and-permissions.user-info-1.email', 'email'),
+                'password' => Hash::make(config('roles-and-permissions.user-info-1.password', 'password')),
             ]);
             DB::commit();
         } catch (\Throwable $th) {
@@ -96,9 +97,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdminRole = Role::where('slug','super_admin')->first();
         $superAdminRole->permissions()->attach($superAdminPermissions);
         //  SUPER ADMINS
-        $user = User::find(1);
-        $user->roles()->attach($superAdminRole);
-        $user->permissions()->attach($superAdminPermissions);
+        $user1 = User::find(1);
+        $user1->roles()->attach($superAdminRole);
+        $user1->permissions()->attach($superAdminPermissions);
     }
 
 
