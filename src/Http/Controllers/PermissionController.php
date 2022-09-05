@@ -22,7 +22,7 @@ class PermissionController extends Controller
     // https://dev.to/kingsconsult/how-to-implement-search-functionality-in-laravel-8-and-laravel-7-downwards-3g76
     public function index(Request $request)
     {
-        if(auth()->user()->can('show_permission'))
+        if(auth()->user()->can('view_permission'))
         {
             $search = $request->search;
             $permissions = Permission::where(function ($query) use ($search){

@@ -20,7 +20,7 @@ class RoleController extends Controller
 
     public function index(Request $request)
     {
-        if(auth()->user()->can('show_role'))
+        if(auth()->user()->can('view_role'))
         {
             $search = $request->search;
             $roles = Role::where(function ($query) use ($search){

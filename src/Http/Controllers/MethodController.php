@@ -19,7 +19,7 @@ class MethodController extends Controller
 
     public function index(Request $request)
     {
-        if(auth()->user()->can('show_method'))
+        if(auth()->user()->can('view_method'))
         {
             $search = $request->search;
             $methods = Method::where(function ($query) use ($search){
