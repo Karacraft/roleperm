@@ -19,24 +19,24 @@ class RolesAndPermissionsServiceProvider extends ServiceProvider
 
     public function boot(Kernel $kernel)
     {
-        $this->loadRoutesFrom(__DIR__.'/routes/web.php');   //  Load Routes
-        $this->loadViewsFrom(__DIR__.'/../resources/views','RolesAndPermissions'); //  Load Views - 'RolesAndPermissions' Ensure, views can be loaded by using this namesapce
+        // $this->loadRoutesFrom(__DIR__.'/routes/web.php');   //  Load Routes
+        // $this->loadViewsFrom(__DIR__.'/../resources/views','RolesAndPermissions'); //  Load Views - 'RolesAndPermissions' Ensure, views can be loaded by using this namesapce
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');  //  Load Migrations - ENsure proper timestamps and no stub
         // Load anonymous components
-        $this->loadViewsFrom(__DIR__.'/components','components'); //  Load Views
-        Blade::component('components::button', 'button');
-        Blade::component('components::content', 'content');
-        Blade::component('components::create-button', 'create-button');
-        Blade::component('components::crud', 'crud');
-        Blade::component('components::input-error', 'input-error');
-        Blade::component('components::input', 'input');
-        Blade::component('components::label', 'label');
-        Blade::component('components::page-header', 'page-header');
-        Blade::component('components::pagination', 'pagination');
-        Blade::component('components::search', 'search');
-        Blade::component('components::table', 'table');
-        Blade::component('components::td', 'td');
-        Blade::component('components::th', 'th');
+        // $this->loadViewsFrom(__DIR__.'/components','components'); //  Load Views
+        // Blade::component('components::button', 'button');
+        // Blade::component('components::content', 'content');
+        // Blade::component('components::create-button', 'create-button');
+        // Blade::component('components::crud', 'crud');
+        // Blade::component('components::input-error', 'input-error');
+        // Blade::component('components::input', 'input');
+        // Blade::component('components::label', 'label');
+        // Blade::component('components::page-header', 'page-header');
+        // Blade::component('components::pagination', 'pagination');
+        // Blade::component('components::search', 'search');
+        // Blade::component('components::table', 'table');
+        // Blade::component('components::td', 'td');
+        // Blade::component('components::th', 'th');
 
         if( $this->app->runningInConsole()){
             $this->publishResources();
@@ -68,11 +68,11 @@ class RolesAndPermissionsServiceProvider extends ServiceProvider
         //     __DIR__ . '/Helpers/SeederHelper.php' => app_path('Helpers/SeederHelper.php'),
         // ],'RolesAndPermissions-helpers');
         //  Publish Models
-        $this->publishes([
-            __DIR__ . '/Models/Base.php'        => app_path('Models/Base.php'),
-            __DIR__ . '/Models/Permission.php'  => app_path('Models/Permission.php'),
-            __DIR__ . '/Models/Role.php'        => app_path('Models/Role.php'),
-        ],'RolesAndPermissions-models');
+        // $this->publishes([
+        //     __DIR__ . '/Models/Base.php'        => app_path('Models/Base.php'),
+        //     __DIR__ . '/Models/Permission.php'  => app_path('Models/Permission.php'),
+        //     __DIR__ . '/Models/Role.php'        => app_path('Models/Role.php'),
+        // ],'RolesAndPermissions-models');
         //  Publish Config
         $this->publishes([
             __DIR__ . '/config/roles-and-permissions.php' => config_path('roles-and-permissions.php'),
