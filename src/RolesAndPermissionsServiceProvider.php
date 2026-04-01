@@ -45,9 +45,9 @@ class RolesAndPermissionsServiceProvider extends ServiceProvider
 
     protected function publishResources()
     {
-        //  Publish Migrations via Stub
-        $this->publishes([
-            __DIR__ . '/../database/migrations/create_package_tables.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_package_tables.php'),
+        //  Publish Migrations
+        $this->publishesMigrations([
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
         ],'RolesAndPermissions-migrations');
 
         //  Publish Seeders

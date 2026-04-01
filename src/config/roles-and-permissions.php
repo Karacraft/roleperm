@@ -15,8 +15,8 @@ return [
      * Don't remove it, just change as per your liking
      */
     'user-info-1' => [
-        'name' => 'Ali Jibran',
-        'email' => 'dukejib@gmail.com',
+        'name' => 'Kara Craft',
+        'email' => 'kc@somewhere.com',
         'password' => 'abc123',
     ],
     /**

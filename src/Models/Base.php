@@ -9,11 +9,6 @@ class Base extends Model
 {
     /** No Timestamps */
     public $timestamps = false;
-    /** Cast datetime to d-m-Y */
-    protected $casts = [
-        'updated_at' => 'datetime:d-m-Y',
-        'created_at' => 'datetime:d-m-Y',
-    ];
    
     public function getAttributeSum(){
         $sum = 0;

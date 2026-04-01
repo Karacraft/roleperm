@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $role, $permission = null)
     {
         //  This protects , when applied on Routes 
         if(!$request->user()->hasRole($role)) {
@@ -16,7 +16,7 @@ class RoleMiddleware
 
         //  This protects , when you don't have the permission in Controller
         if($permission !== null && !$request->user()->can($permission)) {
-            abort(403,"You are not authorized : PERMISSION $permission");
+            abort(403,"You do not have access permission -- $permission");
         }
 
         return $next($request);
