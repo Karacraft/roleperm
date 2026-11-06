@@ -22,6 +22,9 @@ class RolesAndPermissionsServiceProvider extends ServiceProvider
         // $this->loadRoutesFrom(__DIR__.'/routes/web.php');   //  Load Routes
         // $this->loadViewsFrom(__DIR__.'/../resources/views','RolesAndPermissions'); //  Load Views - 'RolesAndPermissions' Ensure, views can be loaded by using this namesapce
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');  //  Load Migrations - ENsure proper timestamps and no stub
+
+        //  Register the `role` route middleware alias
+        $this->app->make(Router::class)->aliasMiddleware('role', RoleMiddleware::class);
         // Load anonymous components
         // $this->loadViewsFrom(__DIR__.'/components','components'); //  Load Views
         // Blade::component('components::button', 'button');

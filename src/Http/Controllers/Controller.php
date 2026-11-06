@@ -9,5 +9,5 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class Controller extends BaseController
 {
-    use AuthorizeRequests , DispatchesJobs, ValidateRequests;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 }

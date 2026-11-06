@@ -90,7 +90,7 @@ php artisan migrate
 php artisan db:seed --class=RolesAndPermissionsSeeder
 ```
 
-> **Note**: Before seeding, update the configuration file and ensure no user exists with the same email as the super admin (default: `kc@somewhere.com`).
+> **Note**: The seeder is idempotent. It will create or update the super admin user based on the configured email (default: `kc@somewhere.com`).
 
 ## Configuration
 
@@ -130,7 +130,7 @@ Specify which models should have permissions:
 
 ### 1. Update User Model
 
-Add the required relationships and trait to your `User` model (`app/Models/User.php`):
+Add the trait to your `User` model (`app/Models/User.php`). The trait provides the `roles()` and `permissions()` relationships:
 
 ```php
 <?php
@@ -145,22 +145,6 @@ class User extends Authenticatable
     use HasPermissionTrait;
 
     // ... other model code ...
-
-    /**
-     * User roles relationship
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'users_roles');
-    }
-
-    /**
-     * User permissions relationship
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'users_permissions');
-    }
 }
 ```
 
@@ -180,7 +164,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         // Check if user has permission to view posts
-        if (!$request->user()->can('List Post')) {
+        if (!$request->user()->can('list_post')) {
             abort(403, 'Unauthorized');
         }
 
@@ -190,7 +174,7 @@ class PostController extends Controller
     public function create(Request $request)
     {
         // Check if user has permission to create posts
-        if (!$request->user()->can('Create Post')) {
+        if (!$request->user()->can('create_post')) {
             abort(403, 'Unauthorized');
         }
 
@@ -209,13 +193,18 @@ Apply the role middleware to routes:
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('posts', PostController::class);
 });
 
-// Or with specific permissions
-Route::middleware(['auth', 'role:admin,editor'])->group(function () {
+// Or allow any of several roles
+Route::middleware(['auth', 'role:super_admin|user'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
+});
+
+// Optionally require a permission as the second parameter
+Route::middleware(['auth', 'role:super_admin|user,create_post'])->group(function () {
+    Route::post('/posts', [PostController::class, 'store']);
 });
 ```
 
@@ -224,11 +213,11 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
 Use permission checks in Blade templates:
 
 ```blade
-@if(auth()->user()->can('Create Post'))
+@if(auth()->user()->can('create_post'))
     <a href="{{ route('posts.create') }}" class="btn btn-primary">Create Post</a>
 @endif
 
-@if(auth()->user()->hasRole('admin'))
+@if(auth()->user()->hasRole('super_admin'))
     <div class="admin-panel">
         <!-- Admin content -->
     </div>
@@ -239,13 +228,19 @@ Use permission checks in Blade templates:
 
 ### User Model Methods (via HasPermissionTrait)
 
-- `hasRole($role)`: Check if user has a specific role
-- `hasAnyRole($roles)`: Check if user has any of the specified roles
-- `can($permission)`: Check if user has a specific permission
-- `assignRole($role)`: Assign a role to the user
+- `hasRole(...$roles)`: Check if user has a specific role (slug or title)
+- `hasAnyRole(...$roles)`: Check if user has any of the specified roles
+- `hasPermissionTo($permission)`: Check if user has a permission (model, slug, title, or id)
+- `assignRole($role)`: Assign a role to the user (model, slug, title, or id)
 - `removeRole($role)`: Remove a role from the user
-- `givePermissionTo($permission)`: Give a permission to the user
-- `revokePermissionTo($permission)`: Revoke a permission from the user
+- `givePermissionsTo(...$permissions)`: Give one or more permissions to the user
+- `givePermissionTo($permission)`: Give a single permission to the user
+- `withdrawPermissionsTo(...$permissions)`: Remove one or more permissions from the user
+- `revokePermissionTo($permission)`: Revoke a single permission from the user
+- `refreshPermissions(...$permissions)`: Replace the user's permissions
+
+> Permission slugs are normalized to snake_case, e.g. `Create Post` becomes `create_post`.
+> Use that slug with `can()` and the `role` middleware. Permission names are resolved by slug or title.
 
 ## Database Structure
 

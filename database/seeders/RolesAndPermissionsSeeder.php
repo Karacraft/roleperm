@@ -17,8 +17,8 @@ class RolesAndPermissionsSeeder extends Seeder
 
     public function run()
     {
-        $this->methods = config('roles-and-permissions.permission-methods', 'permission-methods');
-        $this->models = config('roles-and-permissions.models','models');
+        $this->methods = config('roles-and-permissions.permission-methods', []);
+        $this->models = config('roles-and-permissions.models', []);
 
         $this->createBaseMethods();
         $this->createBasePermissions();
@@ -32,8 +32,11 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         DB::beginTransaction();
         try {
-            for ($i=0; $i < count($this->methods); $i++) { 
-                Method::create(['title' => $this->methods[$i] , 'slug' =>$this->methods[$i]  ]);
+            foreach ($this->methods as $method) {
+                Method::updateOrCreate(
+                    ['title' => $method],
+                    ['slug' => $method]
+                );
             }
             DB::commit();
         } catch (\Throwable $th) {
@@ -46,9 +49,14 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         DB::beginTransaction();
         try {
-            for ($j=0; $j < count($this->models); $j++){
-                for ($i=0; $i < count($this->methods); $i++) { 
-                    Permission::create(['title' => $this->methods[$i] . " " . $this->models[$j],'slug' => $this->methods[$i] . " " . $this->models[$j], 'method' => $this->methods[$i] , 'model' => $this->models[$j] ]);
+            foreach ($this->models as $model) {
+                foreach ($this->methods as $method) {
+                    $title = $method . " " . $model;
+
+                    Permission::updateOrCreate(
+                        ['title' => $title],
+                        ['slug' => $title, 'method' => $method, 'model' => $model]
+                    );
                 }
             } 
             DB::commit();
@@ -62,9 +70,14 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         DB::beginTransaction();
         try {
-            //  User Model
-            Role::create(['title' => 'Super Admin','slug' => 'Super Admin', 'description' => 'Application Owner']);
-            Role::create(['title' => 'User','slug' => 'User', 'description' => 'Restricted User']);
+            Role::updateOrCreate(
+                ['title' => 'Super Admin'],
+                ['slug' => 'Super Admin', 'description' => 'Application Owner']
+            );
+            Role::updateOrCreate(
+                ['title' => 'User'],
+                ['slug' => 'User', 'description' => 'Restricted User']
+            );
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
@@ -76,12 +89,13 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         DB::beginTransaction();
         try {
-            //  User Model
-            User::create([
-                'name' => config('roles-and-permissions.user-info-1.name', 'name'),
-                'email' => config('roles-and-permissions.user-info-1.email', 'email'),
-                'password' => Hash::make(config('roles-and-permissions.user-info-1.password', 'password')),
-            ]);
+            User::updateOrCreate(
+                ['email' => config('roles-and-permissions.user-info-1.email', 'email')],
+                [
+                    'name' => config('roles-and-permissions.user-info-1.name', 'name'),
+                    'password' => Hash::make(config('roles-and-permissions.user-info-1.password', 'password')),
+                ]
+            );
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
@@ -91,15 +105,26 @@ class RolesAndPermissionsSeeder extends Seeder
 
     public function seedSuperUser()
     {
+        $superAdminRole = Role::where('slug', 'super_admin')->first();
+
+        if ($superAdminRole === null) {
+            return;
+        }
+
         //  Permissions
         $superAdminPermissions = Permission::all();
-        //  Roles
-        $superAdminRole = Role::where('slug','super_admin')->first();
-        $superAdminRole->permissions()->attach($superAdminPermissions);
+
+        $superAdminRole->permissions()->syncWithoutDetaching($superAdminPermissions->modelKeys());
+
         //  SUPER ADMINS
-        $user1 = User::find(1);
-        $user1->roles()->attach($superAdminRole);
-        $user1->permissions()->attach($superAdminPermissions);
+        $user = User::where('email', config('roles-and-permissions.user-info-1.email', 'email'))->first();
+
+        if ($user === null) {
+            return;
+        }
+
+        $user->roles()->syncWithoutDetaching([$superAdminRole->getKey()]);
+        $user->permissions()->syncWithoutDetaching($superAdminPermissions->modelKeys());
     }
 
 
