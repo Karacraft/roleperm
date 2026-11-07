@@ -2,68 +2,69 @@
 
 namespace Karacraft\RolesAndPermissions;
 
-use Exception;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Karacraft\RolesAndPermissions\Models\Permission;
+use Karacraft\RolesAndPermissions\Console\Commands\CachePermissions;
+use Karacraft\RolesAndPermissions\Console\Commands\ClearPermissions;
+use Karacraft\RolesAndPermissions\Console\Commands\SeedRolesAndPermissions;
+use Karacraft\RolesAndPermissions\Support\Config;
+use Karacraft\RolesAndPermissions\Support\PermissionRegistry;
 
 class PermissionsServiceProvider extends ServiceProvider
 {
-
     public function register()
     {
-        //
+        $this->app->singleton(PermissionRegistry::class, function ($app) {
+            $store = Config::cacheStore();
+
+            $repository = $store
+                ? $app['cache']->store($store)
+                : $app['cache']->store();
+
+            return new PermissionRegistry(
+                $repository,
+                Config::cacheEnabled(),
+                Config::cacheKey(),
+                Config::cacheTtl(),
+            );
+        });
     }
 
     public function boot()
     {
-        try {
-            Permission::get()->map(function ($permission) {
-                Gate::define($permission->slug, function ($user) use ($permission) {
-                    return $user->hasPermissionTo($permission);
-                });
-            });
-        } catch (Exception $e) {
-            report($e);
-            return false;
-        }
+        $registry = $this->app->make(PermissionRegistry::class);
 
-        /** This is a blade directive, to show number in currency */
-        // Learn More https://codelike.pro/how-to-create-custom-blade-directives-in-laravel-5/
+        Gate::before(function ($user, $ability) use ($registry) {
+            if ($user === null || ! $registry->contains($ability)) {
+                return null;
+            }
+
+            return $user->hasPermissionTo($ability) ? true : null;
+        });
+
         Blade::directive('tocurrency', function ($money) {
             return "<?php echo number_format($money, 2); ?>";
         });
-        //  DEV-COM: These will be shared across all view
-        //  Learn More https://laravel.com/docs/5.8/views#sharing-data-with-all-views
-        //  View::share('username','anything'); // This doesn't support Auth()
-        // LogActivity::observe(LogObserver::class);
-        // Learn More: https://stackoverflow.com/a/60726871/4853427
-        //  WORKING:
+
         Blade::if('roles', function (...$role) {
-            if(auth()->user()->hasRole(...$role))
-                return true;
-            return false;
+            return auth()->check() && auth()->user()->hasRole(...$role);
         });
-        //  FIXME:
-        // Blade::if('user', function () {
-        //     if(auth()->user()->hasRole('user'))
-        //         return true;
-        //     return false;
-        // });
-        // Blade::if('store_manager', function () {
-        //     if(auth()->user()->hasRole('store_manager'))
-        //         return true;
-        //     return false;
-        // });
-        //Blade directives 
-        Blade::directive('role', function ($role) 
-        { 
-            return "if(auth()->check() && auth()->user()->hasRole({$role})) :"; //return this ifstatement inside php tag 
+
+        Blade::directive('role', function ($role) {
+            return "<?php if(auth()->check() && auth()->user()->hasRole({$role})): ?>";
         });
-        Blade::directive('endrole', function ($role) 
-        { 
-            return "endif;"; //return this endif statement inside php tag
+
+        Blade::directive('endrole', function () {
+            return "<?php endif; ?>";
         });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CachePermissions::class,
+                ClearPermissions::class,
+                SeedRolesAndPermissions::class,
+            ]);
+        }
     }
 }

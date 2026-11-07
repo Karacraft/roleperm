@@ -2,14 +2,17 @@
 
 namespace Karacraft\RolesAndPermissions\Models;
 
-use Karacraft\RolesAndPermissions\Models\Base;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Karacraft\RolesAndPermissions\Support\Config;
 
 class Method extends Base
 {
     use HasFactory;
 
-    protected $table = 'methods';
     protected $fillable = ['title','slug'];
- 
+
+    public function getTable(): string
+    {
+        return Config::table('methods');
+    }
 }

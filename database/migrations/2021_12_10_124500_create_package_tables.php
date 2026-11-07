@@ -13,61 +13,80 @@ class CreatePackageTables extends Migration
      */
     public function up()
     {
-        Schema::create('methods', function (Blueprint $table) {
+        $tables = [
+            'users' => config('roles-and-permissions.tables.users', 'users'),
+            'roles' => config('roles-and-permissions.tables.roles', 'roles'),
+            'permissions' => config('roles-and-permissions.tables.permissions', 'permissions'),
+            'methods' => config('roles-and-permissions.tables.methods', 'methods'),
+            'roles_permissions' => config('roles-and-permissions.tables.roles_permissions', 'roles_permissions'),
+            'users_roles' => config('roles-and-permissions.tables.users_roles', 'users_roles'),
+            'users_permissions' => config('roles-and-permissions.tables.users_permissions', 'users_permissions'),
+        ];
+
+        $foreignKeys = [
+            'user' => config('roles-and-permissions.foreign_keys.user', 'user_id'),
+            'role' => config('roles-and-permissions.foreign_keys.role', 'role_id'),
+            'permission' => config('roles-and-permissions.foreign_keys.permission', 'permission_id'),
+        ];
+
+        $guard = config('roles-and-permissions.default_guard')
+            ?? (config('roles-and-permissions.guards')[0] ?? config('auth.defaults.guard', 'web'));
+
+        // Methods Table
+        Schema::create($tables['methods'], function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->string('slug');
         });
-        // Permisisons Table
-        Schema::create('permissions', function (Blueprint $table) {
+
+        // Permissions Table
+        Schema::create($tables['permissions'], function (Blueprint $table) use ($guard) {
             $table->id();
-            $table->string('title')->unique();
-            $table->string('slug')->unique();
+            $table->string('title');
+            $table->string('slug');
+            $table->string('guard_name')->default($guard)->index();
             $table->string('model')->nullable();  // Users
-            $table->string('method')->nullable();//view,create,update,delete,edit,show
+            $table->string('method')->nullable(); // view,create,update,delete,edit,show
+            $table->unique(['guard_name', 'title']);
+            $table->unique(['guard_name', 'slug']);
         });
-        //  Roles Table
-        Schema::create('roles', function (Blueprint $table) {
+
+        // Roles Table
+        Schema::create($tables['roles'], function (Blueprint $table) use ($guard) {
             $table->id();
-            $table->string('title')->unique();
-            $table->string('slug')->unique();
+            $table->string('title');
+            $table->string('slug');
+            $table->string('guard_name')->default($guard)->index();
             $table->string('description')->default('Role Description');
+            $table->unique(['guard_name', 'title']);
+            $table->unique(['guard_name', 'slug']);
         });
-        //  Roles Permissions Table
-        Schema::create('roles_permissions', function (Blueprint $table) {
-            $table->bigInteger('role_id')->unsigned();
-            $table->bigInteger('permission_id')->unsigned();
 
-            //FOREIGN KEY CONSTRAINTS
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+        // Roles Permissions Table
+        Schema::create($tables['roles_permissions'], function (Blueprint $table) use ($tables, $foreignKeys) {
+            $table->foreignId($foreignKeys['role'])->constrained($tables['roles'])->cascadeOnDelete();
+            $table->foreignId($foreignKeys['permission'])->constrained($tables['permissions'])->cascadeOnDelete();
 
-            //SETTING THE PRIMARY KEYS
-            $table->primary(['role_id','permission_id']);
+            // SETTING THE PRIMARY KEYS
+            $table->primary([$foreignKeys['role'], $foreignKeys['permission']]);
         });
-        //  Users Permissions
-        Schema::create('users_permissions', function (Blueprint $table) {
-            $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('permission_id')->unsigned();
 
-            //FOREIGN KEY CONSTRAINTS
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+        // Users Permissions Table
+        Schema::create($tables['users_permissions'], function (Blueprint $table) use ($tables, $foreignKeys) {
+            $table->foreignId($foreignKeys['user'])->constrained($tables['users'])->cascadeOnDelete();
+            $table->foreignId($foreignKeys['permission'])->constrained($tables['permissions'])->cascadeOnDelete();
 
-            //SETTING THE PRIMARY KEYS
-            $table->primary(['user_id','permission_id']);
+            // SETTING THE PRIMARY KEYS
+            $table->primary([$foreignKeys['user'], $foreignKeys['permission']]);
         });
-        //  Users Roles
-        Schema::create('users_roles', function (Blueprint $table) {
-            $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('role_id')->unsigned();
 
-            //FOREIGN KEY CONSTRAINTS
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+        // Users Roles Table
+        Schema::create($tables['users_roles'], function (Blueprint $table) use ($tables, $foreignKeys) {
+            $table->foreignId($foreignKeys['user'])->constrained($tables['users'])->cascadeOnDelete();
+            $table->foreignId($foreignKeys['role'])->constrained($tables['roles'])->cascadeOnDelete();
 
-            //SETTING THE PRIMARY KEYS
-            $table->primary(['user_id','role_id']);
+            // SETTING THE PRIMARY KEYS
+            $table->primary([$foreignKeys['user'], $foreignKeys['role']]);
         });
     }
 
@@ -78,11 +97,11 @@ class CreatePackageTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('methods');
-        Schema::dropIfExists('users_roles');
-        Schema::dropIfExists('users_permissions');
-        Schema::dropIfExists('roles_permissions');
-        Schema::dropIfExists('roles');
-        Schema::dropIfExists('permissions');
+        Schema::dropIfExists(config('roles-and-permissions.tables.users_roles', 'users_roles'));
+        Schema::dropIfExists(config('roles-and-permissions.tables.users_permissions', 'users_permissions'));
+        Schema::dropIfExists(config('roles-and-permissions.tables.roles_permissions', 'roles_permissions'));
+        Schema::dropIfExists(config('roles-and-permissions.tables.roles', 'roles'));
+        Schema::dropIfExists(config('roles-and-permissions.tables.permissions', 'permissions'));
+        Schema::dropIfExists(config('roles-and-permissions.tables.methods', 'methods'));
     }
 }

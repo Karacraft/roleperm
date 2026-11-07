@@ -9,7 +9,16 @@ class Base extends Model
 {
     /** No Timestamps */
     public $timestamps = false;
-   
+
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->slug) && ! empty($model->title)) {
+                $model->slug = $model->title;
+            }
+        });
+    }
+
     public function getAttributeSum(){
         $sum = 0;
         foreach(func_get_args() as $attribute){

@@ -3,8 +3,8 @@
 namespace Karacraft\RolesAndPermissions\Traits;
 
 use Illuminate\Support\Arr;
-use Karacraft\RolesAndPermissions\Models\Role;
-use Karacraft\RolesAndPermissions\Models\Permission;
+use Karacraft\RolesAndPermissions\Support\Config;
+
 /**
  * Has Permission to View/Edit/Add/Delete Model Items
  */
@@ -65,30 +65,59 @@ trait HasPermissionTrait
     protected function getAllPermissions(array $permissions)
     {
         $permissions = Arr::flatten($permissions);
+        $permissionModel = Config::permissionModel();
 
-        return Permission::whereIn('slug', $permissions)
-            ->orWhereIn('title', $permissions)
+        $ids = [];
+        $names = [];
+
+        foreach ($permissions as $permission) {
+            if ($permission instanceof $permissionModel) {
+                $ids[] = $permission->getKey();
+            } elseif (is_numeric($permission)) {
+                $ids[] = (int) $permission;
+            } elseif (is_string($permission) && $permission !== '') {
+                $names[] = $permission;
+            }
+        }
+
+        if ($ids === [] && $names === []) {
+            return $permissionModel::query()->whereRaw('0 = 1')->get();
+        }
+
+        $keyName = (new $permissionModel())->getKeyName();
+
+        return $permissionModel::query()
+            ->when($ids !== [], fn ($query) => $query->whereIn($keyName, $ids))
+            ->when($names !== [], function ($query) use ($ids, $names) {
+                $method = $ids === [] ? 'where' : 'orWhere';
+
+                $query->{$method}(function ($query) use ($names) {
+                    $query->whereIn('slug', $names)->orWhereIn('title', $names);
+                });
+            })
             ->get();
     }
 
     //  Find a permission by model, slug or title
     protected function resolvePermission($permission)
     {
-        if ($permission instanceof Permission) {
+        $permissionModel = Config::permissionModel();
+
+        if ($permission instanceof $permissionModel) {
             return $permission;
         }
 
         if (is_numeric($permission)) {
-            return Permission::find($permission);
+            return $permissionModel::find($permission);
         }
 
-        return Permission::where('slug', $permission)
+        return $permissionModel::where('slug', $permission)
             ->orWhere('title', $permission)
             ->first();
     }
 
     //  Does User have a permisison to act via role
-    public function hasPermissionTo($permission)
+    public function hasPermissionTo($permission): bool
     {
         $permission = $this->resolvePermission($permission);
 
@@ -100,7 +129,7 @@ trait HasPermissionTrait
     }
 
     //  Does user have a permission to do action via role
-    public function hasPermissionThroughRole($permission)
+    public function hasPermissionThroughRole($permission): bool
     {
         $permission = $this->resolvePermission($permission);
 
@@ -108,28 +137,33 @@ trait HasPermissionTrait
             return false;
         }
 
+        $rolesTable = $this->roles()->getRelated()->getTable();
+
         foreach ($permission->roles as $role){
-            if($this->roles()->where('roles.id', $role->getKey())->exists()) {
+            if($this->roles()->where($rolesTable.'.id', $role->getKey())->exists()) {
                 return true;
             }
         }
         return false;
     }
     //  Does this user have particular Permission
-    protected function hasPermission($permission)
+    protected function hasPermission($permission): bool
     {
-        return $this->permissions()->where('permissions.slug', $permission->slug)->exists();
+        $table = $this->permissions()->getRelated()->getTable();
+
+        return $this->permissions()->where($table.'.slug', $permission->slug)->exists();
     }
 
 
     //  Does User have particualr role?
-    public function hasRole( ... $roles )
+    public function hasRole( ... $roles ) : bool
     {
         $roles = Arr::flatten($roles);
+        $table = $this->roles()->getRelated()->getTable();
 
         foreach ($roles as $role) {
-            if ($this->roles()->where(function ($query) use ($role) {
-                $query->where('roles.slug', $role)->orWhere('roles.title', $role);
+            if ($this->roles()->where(function ($query) use ($role, $table) {
+                $query->where($table.'.slug', $role)->orWhere($table.'.title', $role);
             })->exists())
                 return true;
         }
@@ -137,7 +171,7 @@ trait HasPermissionTrait
     }
 
     //  Does User have any of the given roles?
-    public function hasAnyRole( ... $roles )
+    public function hasAnyRole( ... $roles ) : bool
     {
         return $this->hasRole(...$roles);
     }
@@ -169,21 +203,40 @@ trait HasPermissionTrait
     //  Find a role by model, slug or title
     protected function resolveRole($role)
     {
-        if ($role instanceof Role) {
+        $roleModel = Config::roleModel();
+
+        if ($role instanceof $roleModel) {
             return $role;
         }
 
         if (is_numeric($role)) {
-            return Role::find($role);
+            return $roleModel::find($role);
         }
 
-        return Role::where('slug', $role)
+        return $roleModel::where('slug', $role)
             ->orWhere('title', $role)
             ->first();
     }
 
     //  User Can Have Many Roles
-    public function roles() {return $this->belongsToMany(Role::class,'users_roles');}
+    public function roles()
+    {
+        return $this->belongsToMany(
+            Config::roleModel(),
+            Config::table('users_roles'),
+            Config::foreignKey('user'),
+            Config::foreignKey('role')
+        );
+    }
+
     //  User Can have many permissions
-    public function permissions() {return $this->belongsToMany(Permission::class,'users_permissions');}
+    public function permissions()
+    {
+        return $this->belongsToMany(
+            Config::permissionModel(),
+            Config::table('users_permissions'),
+            Config::foreignKey('user'),
+            Config::foreignKey('permission')
+        );
+    }
 }
