@@ -28,7 +28,7 @@ class Role extends Base
     }
 
     /** Relationships */
-    public function permissions()
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Config::permissionModel(),
@@ -38,7 +38,7 @@ class Role extends Base
         );
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Config::userModel(),

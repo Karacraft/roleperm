@@ -58,9 +58,9 @@ return [
      */
     'cache' => [
         'enabled' => env('ROLEPERM_CACHE_ENABLED', true),
-        'store' => env('ROLEPERM_CACHE_STORE'),
+        'store' => env('ROLEPERM_CACHE_STORE'), // null = default cache store
         'key' => 'roles-and-permissions.permissions',
-        'ttl' => env('ROLEPERM_CACHE_TTL', 3600),
+        'ttl' => env('ROLEPERM_CACHE_TTL', 3600), // null = forever
     ],
 
     /**
@@ -68,13 +68,6 @@ return [
      */
     'permission-methods' => [
         'Create','Update','Delete','Edit','Show','List','View','Tile','Approve','Reject','Cancel','Hold'
-    ],
-
-    /**
-     * Models to generate permissions for while seeding.
-     */
-    'permission-models' => [
-        'User','Role','Permission','Method'
     ],
 
     /**
@@ -93,8 +86,12 @@ return [
     ],
 
     /**
-     * Seeding Number, Used throught out Controllers
+     * Number of items per page for the permission list.
      */
     'paging-number' => 5,
-    'unauthorized_access_string' => 'Unauthorzied Access',
+
+    /**
+     * Message to display when a user is unauthorized.
+     */
+    'unauthorized_access_string' => 'Unauthorized Access',
 ];

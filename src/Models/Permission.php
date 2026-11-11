@@ -31,7 +31,7 @@ class Permission extends Base
         });
     }
 
-    protected static function flushPermissionCache(): void
+    public static function flushPermissionCache(): void
     {
         if (app()->bound(PermissionRegistry::class)) {
             app(PermissionRegistry::class)->flush();
@@ -44,7 +44,7 @@ class Permission extends Base
     }
 
     /** Relationships */
-    public function roles()
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Config::roleModel(),
@@ -54,7 +54,7 @@ class Permission extends Base
         );
     }
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Config::userModel(),
@@ -63,4 +63,5 @@ class Permission extends Base
             Config::foreignKey('user')
         );
     }
+
 }

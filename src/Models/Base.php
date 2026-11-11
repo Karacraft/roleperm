@@ -19,7 +19,9 @@ class Base extends Model
         });
     }
 
-    public function getAttributeSum(){
+
+    public function getAttributeSum(): float|int
+    {
         $sum = 0;
         foreach(func_get_args() as $attribute){
             $sum += $this->getAttribute($attribute);
@@ -27,11 +29,11 @@ class Base extends Model
         return $sum;
     }
 
-    public function setTitleAttribute($value)
+    public function setTitleAttribute(string $value): void
     {
         $this->attributes['title'] = ucwords($value);
     }
-    public function setSlugAttribute($value)
+    public function setSlugAttribute(string $value): void
     {
         $slug = trim($value); // trim the string
         $slug= preg_replace('/[^a-zA-Z0-9 -]/','',$slug ); // only take alphanumerical characters, but keep the spaces and dashes too...
@@ -40,15 +42,15 @@ class Base extends Model
         $this->attributes['slug'] = $slug;
     }
     
-    public function setMethodAttribute($value)
+    public function setMethodAttribute(string $value): void
     {
         $this->attributes['method'] = ucwords($value);
     }
-    public function setModelAttribute($value)
+    public function setModelAttribute(string $value): void
     {
         $this->attributes['model'] = ucwords($value);
     }
 
     //  Learn More : https://laravel.com/docs/7.x/upgrade#date-serialization
-    protected function serializeDate(DateTimeInterface $date) { return $date->format('d-m-Y'); }
+    protected function serializeDate(DateTimeInterface $date): string { return $date->format('d-m-Y'); }
 }

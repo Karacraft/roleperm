@@ -3,6 +3,7 @@
 namespace Karacraft\RolesAndPermissions\Support;
 
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Support\Facades\Log;
 
 class PermissionRegistry
 {
@@ -61,9 +62,9 @@ class PermissionRegistry
     }
 
     /**
-     * @return array<int, string>|null
+     * @return array<int, string>
      */
-    protected function load(): ?array
+    protected function load(): array
     {
         try {
             $permissionModel = Config::permissionModel();
@@ -76,8 +77,12 @@ class PermissionRegistry
                 ->all();
         } catch (\Throwable $e) {
             report($e);
+            Log::error("PermissionRegistry: Failed to load permissions from database.", [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-            return null;
+            return [];
         }
     }
 }

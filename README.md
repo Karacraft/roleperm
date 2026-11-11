@@ -6,16 +6,26 @@
 
 A comprehensive, flexible role-based and permission-based authorization package for Laravel applications. Designed to work seamlessly with Laravel Jetstream and provide granular access control for your applications.
 
+## Quick Start
+
+Get up and running in minutes:
+
+1. **Install**: Add the repository to your `composer.json` and run `composer require karacraft/roleperm`.
+2. **Publish**: Run `php artisan vendor:publish --provider="Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider"`.
+3. **Migrate**: Run `php artisan migrate`.
+4. **Seed**: Run `php artisan roleperm:seed` to populate default methods and roles.
+5. **Integrate**: Add the `HasPermissionTrait` to your `User` model.
+
 ## Features
 
-- **Role-Based Access Control (RBAC)**: Assign roles to users with predefined permissions
-- **Granular Permissions**: Control access at the method level (Create, Read, Update, Delete, etc.)
-- **Middleware Protection**: Protect routes and controllers with role/permission checks
-- **Trait Integration**: Easy integration with User models via traits
-- **Opt-in Seeding**: Seed methods, permissions, and roles; optionally create a super admin with your own credentials
-- **Flexible Configuration**: Customize permission methods, models, tables, and guards via config
-- **Cached Gate Integration**: Permissions are resolved lazily and cached, with artisan commands to rebuild/clear
-- **Laravel Jetstream Compatible**: Optimized for use with Laravel Jetstream authentication
+- **Role-Based Access Control (RBAC)**: Assign roles to users with predefined permissions.
+- **Granular Permissions**: Control access at the method level (Create, Read, Update, Delete, etc.).
+- **Middleware Protection**: Protect routes and controllers with role/permission checks.
+- **Trait Integration**: Easy integration with User models via traits.
+- **Opt-in Seeding**: Seed methods, permissions, and roles; optionally create a super admin with your own credentials.
+- **Flexible Configuration**: Customize permission methods, models, tables, and guards via config.
+- **Cached Gate Integration**: Permissions are resolved lazily and cached, with artisan commands to rebuild/clear.
+- **Laravel Jetstream Compatible**: Optimized for use with Laravel Jetstream authentication.
 
 ## Requirements
 
@@ -93,8 +103,7 @@ Seed the permission methods, permissions, and roles:
 php artisan roleperm:seed
 ```
 
-To also create/update the configured super admin user, enable it in config (see
-[Super Admin Seeding](#super-admin-seeding-opt-in)) or pass the flag:
+To also create/update the configured super admin user, enable it in config (see [Super Admin Seeding](#super-admin-seeding-opt-in)) or pass the flag:
 
 ```bash
 php artisan roleperm:seed --super-admin
@@ -197,7 +206,7 @@ Roles and permissions are scoped by `guard_name`:
 
 ```php
 'guards' => ['web'],
-'default_guard' => null, // defaults to the first guard, then auth.defaults.guard
+'default_guard' => null, // defaults to the first guard, then config('auth.defaults.guard')
 ```
 
 ### Permission Models
@@ -341,37 +350,26 @@ Use permission checks in Blade templates:
 The package also provides `@roles` / `@endroles`, `@role` / `@endrole`, and a
 `@tocurrency` directive.
 
-### 5. Gate Integration
+## Best Practices
 
-Every permission is available through Laravel's `Gate`, so `can()`, `@can`,
-and `Gate::allows()` work without defining anything manually. A single
-`Gate::before` callback resolves the cached permission map and delegates to
-`hasPermissionTo()` on your user model. Unknown abilities are left untouched so
-your own policies and gates continue to work.
+### Architectural Integrity
+- **Model-Specific Permissions**: Instead of creating a "God Role" with every permission, create specific permissions for specific models (e.g., `edit_post`, `delete_user`).
+- **Granular Methods**: Use the `permission-methods` to define specific actions. This allows you to distinguish between "View" and "Edit" permissions clearly.
+- **Trait Usage**: Always use the provided `HasPermissionTrait` on your User models to ensure consistent behavior across the application.
 
-## Available Methods
+### Performance
+- **Cache Management**: Ensure `ROLEPERM_CACHE_ENABLED` is true in production. Use `php artisan roleperm:cache` during deployment to warm up the cache.
+- **Lazy Loading**: The package resolves permissions lazily. Only the permissions actually checked during a request will be loaded into the cache.
 
-### User Model Methods (via HasPermissionTrait)
-
-- `hasRole(...$roles)`: Check if user has a specific role (slug or title)
-- `hasAnyRole(...$roles)`: Check if user has any of the specified roles
-- `hasPermissionTo($permission)`: Check if user has a permission (model, slug, title, or id)
-- `assignRole($role)`: Assign a role to the user (model, slug, title, or id)
-- `removeRole($role)`: Remove a role from the user
-- `givePermissionsTo(...$permissions)`: Give one or more permissions to the user
-- `givePermissionTo($permission)`: Give a single permission to the user
-- `withdrawPermissionsTo(...$permissions)`: Remove one or more permissions from the user
-- `revokePermissionTo($permission)`: Revoke a single permission from the user
-- `refreshPermissions(...$permissions)`: Replace the user's permissions
-
-> Permission slugs are normalized to snake_case, e.g. `Create Post` becomes `create_post`.
-> Use that slug with `can()` and the `role` middleware. Permission names are resolved by slug or title.
+### Security
+- **Guard Scoping**: Always ensure your roles and permissions are scoped to the correct guard (e.g., `web`, `api`).
+- **Input Sanitization**: While the package handles slug normalization, always validate user input before saving to the database.
 
 ## Database Structure
 
 The package creates the following tables (all names are configurable):
 
-- `methods`: Stores permission methods (Create, Update, etc.)
+- `methods`: Stores permission methods (Create, Update, Delete, etc.)
 - `permissions`: Stores permissions (model + method combinations), scoped by `guard_name`
 - `roles`: Stores user roles, scoped by `guard_name`
 - `roles_permissions`: Pivot table for role-permission relationships
@@ -426,5 +424,4 @@ If you encounter any issues or need help, please open an issue on GitHub.
 
 ---
 
-*Built with ❤️ for the Laravel community*  
-
+*Built with ❤️ for the Laravel community*
