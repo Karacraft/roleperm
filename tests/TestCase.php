@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Karacraft\RolesAndPermissions\PermissionsServiceProvider;
 use Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider;
 use Karacraft\RolesAndPermissions\Tests\Fixtures\User;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -17,6 +18,7 @@ abstract class TestCase extends Orchestra
         return [
             RolesAndPermissionsServiceProvider::class,
             PermissionsServiceProvider::class,
+            LivewireServiceProvider::class,
         ];
     }
 

@@ -53,6 +53,12 @@ return [
     'default_guard' => null,
 
     /**
+     * Guard used when resolving a user's roles and permissions. When null the
+     * active authentication guard is used, falling back to `default_guard`.
+     */
+    'user_guard' => env('ROLEPERM_USER_GUARD'),
+
+    /**
      * Permission cache used by the Gate integration. The cache is rebuilt with
      * `php artisan roleperm:cache` and cleared with `php artisan roleperm:clear`.
      */
@@ -78,17 +84,32 @@ return [
     ],
 
     /**
-     * Super admin user seeding is opt-in. When enabled, the seeder will create
-     * or update the user with these credentials and grant it every permission.
-     * There are intentionally no default credentials.
+     * Base roles created by the seeder. Add, remove, or rename them freely.
      */
     'seed' => [
+        'roles' => [
+            ['title' => 'Super Admin', 'description' => 'Application Owner'],
+            ['title' => 'User', 'description' => 'Restricted User'],
+        ],
+
+        /**
+         * Super admin user seeding is opt-in. When enabled, the seeder will
+         * create or update the user with these credentials and grant it every
+         * permission. There are intentionally no default credentials.
+         *
+         * Map the fields below to your user model's actual columns.
+         */
         'super_admin' => [
             'enabled' => env('ROLEPERM_SUPER_ADMIN_ENABLED', false),
             'name' => env('ROLEPERM_SUPER_ADMIN_NAME', 'Super Admin'),
             'email' => env('ROLEPERM_SUPER_ADMIN_EMAIL'),
             'password' => env('ROLEPERM_SUPER_ADMIN_PASSWORD'),
             'role' => 'Super Admin',
+            'fields' => [
+                'name' => 'name',
+                'email' => 'email',
+                'password' => 'password',
+            ],
         ],
     ],
 
@@ -96,5 +117,21 @@ return [
      * Seeding Number, Used throught out Controllers
      */
     'paging-number' => 5,
-    'unauthorized_access_string' => 'Unauthorzied Access',
+    'currency_decimals' => 2,
+    'unauthorized_access_string' => 'Unauthorized Access',
+    'unauthorized_permission_string' => 'Unauthorized Access',
+
+    /**
+     * Optional Livewire frontend. Install livewire/livewire to use it. When
+     * `permission` is set, users must have that permission to view the UI.
+     */
+    'ui' => [
+        'enabled' => env('ROLEPERM_UI_ENABLED', false),
+        'path' => env('ROLEPERM_UI_PATH', 'roles-and-permissions'),
+        'middleware' => ['web', 'auth'],
+        'permission' => env('ROLEPERM_UI_PERMISSION'),
+        'per_page' => 15,
+        'title' => env('ROLEPERM_UI_TITLE'),
+        'brand' => env('ROLEPERM_UI_BRAND'),
+    ],
 ];

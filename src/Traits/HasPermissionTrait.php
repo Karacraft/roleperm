@@ -86,7 +86,10 @@ trait HasPermissionTrait
 
         $keyName = (new $permissionModel())->getKeyName();
 
+        $guard = Config::userGuard();
+
         return $permissionModel::query()
+            ->where('guard_name', $guard)
             ->when($ids !== [], fn ($query) => $query->whereIn($keyName, $ids))
             ->when($names !== [], function ($query) use ($ids, $names) {
                 $method = $ids === [] ? 'where' : 'orWhere';
@@ -102,17 +105,21 @@ trait HasPermissionTrait
     protected function resolvePermission($permission)
     {
         $permissionModel = Config::permissionModel();
+        $guard = Config::userGuard();
 
         if ($permission instanceof $permissionModel) {
-            return $permission;
+            return $permission->guard_name === $guard ? $permission : null;
         }
 
         if (is_numeric($permission)) {
-            return $permissionModel::find($permission);
+            return $permissionModel::where('guard_name', $guard)
+                ->find($permission);
         }
 
-        return $permissionModel::where('slug', $permission)
-            ->orWhere('title', $permission)
+        return $permissionModel::where('guard_name', $guard)
+            ->where(function ($query) use ($permission) {
+                $query->where('slug', $permission)->orWhere('title', $permission);
+            })
             ->first();
     }
 
@@ -138,9 +145,14 @@ trait HasPermissionTrait
         }
 
         $rolesTable = $this->roles()->getRelated()->getTable();
+        $guard = Config::userGuard();
 
-        foreach ($permission->roles as $role){
-            if($this->roles()->where($rolesTable.'.id', $role->getKey())->exists()) {
+        $roles = $permission->roles()
+            ->where($rolesTable.'.guard_name', $guard)
+            ->get();
+
+        foreach ($roles as $role) {
+            if ($this->roles()->where($rolesTable.'.id', $role->getKey())->exists()) {
                 return true;
             }
         }
@@ -151,7 +163,10 @@ trait HasPermissionTrait
     {
         $table = $this->permissions()->getRelated()->getTable();
 
-        return $this->permissions()->where($table.'.slug', $permission->slug)->exists();
+        return $this->permissions()
+            ->where($table.'.slug', $permission->slug)
+            ->where($table.'.guard_name', Config::userGuard())
+            ->exists();
     }
 
 
@@ -160,11 +175,15 @@ trait HasPermissionTrait
     {
         $roles = Arr::flatten($roles);
         $table = $this->roles()->getRelated()->getTable();
+        $guard = Config::userGuard();
 
         foreach ($roles as $role) {
-            if ($this->roles()->where(function ($query) use ($role, $table) {
-                $query->where($table.'.slug', $role)->orWhere($table.'.title', $role);
-            })->exists())
+            if ($this->roles()
+                ->where($table.'.guard_name', $guard)
+                ->where(function ($query) use ($role, $table) {
+                    $query->where($table.'.slug', $role)->orWhere($table.'.title', $role);
+                })
+                ->exists())
                 return true;
         }
         return false;
@@ -204,17 +223,20 @@ trait HasPermissionTrait
     protected function resolveRole($role)
     {
         $roleModel = Config::roleModel();
+        $guard = Config::userGuard();
 
         if ($role instanceof $roleModel) {
-            return $role;
+            return $role->guard_name === $guard ? $role : null;
         }
 
         if (is_numeric($role)) {
-            return $roleModel::find($role);
+            return $roleModel::where('guard_name', $guard)->find($role);
         }
 
-        return $roleModel::where('slug', $role)
-            ->orWhere('title', $role)
+        return $roleModel::where('guard_name', $guard)
+            ->where(function ($query) use ($role) {
+                $query->where('slug', $role)->orWhere('title', $role);
+            })
             ->first();
     }
 

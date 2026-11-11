@@ -22,70 +22,71 @@ A comprehensive, flexible role-based and permission-based authorization package 
 - PHP 8.4 or higher
 - Laravel 11.x to 13.x
 - Composer
+- Livewire 3.x (optional, only for the frontend dashboard)
 
 ## Installation
 
-### Step 1: Add Repository to Composer
+### Step 1: Install Package
 
-Since this package is not yet published on Packagist, you need to add the repository to your `composer.json`:
+```bash
+composer require karacraft/roleperm
+```
+
+If the package is not available from Packagist yet, add the VCS repository to
+your application's `composer.json` first:
 
 ```json
 {
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/Karacraft/roleperm",
-            "options": {
-                "symlink": true
-            }
+            "url": "https://github.com/Karacraft/roleperm"
         }
     ]
 }
 ```
 
-### Step 2: Install Package
+### Step 2: Publish Package Resources (Optional)
 
-```bash
-composer require karacraft/roleperm
-```
-
-### Step 3: Publish Package Resources
-
-Publish the necessary configuration, migrations, and seeders:
+Migrations are loaded automatically, so there is no migration file to publish.
+Publishing is only needed if you want to customize package resources:
 
 ```bash
 php artisan vendor:publish --provider="Karacraft\RolesAndPermissions\RolesAndPermissionsServiceProvider"
 ```
 
-This will publish:
-- Configuration file (`config/roles-and-permissions.php`)
-- Database migrations
-- Seeders
-- Traits
+Published resources:
+- Configuration (`config/roles-and-permissions.php`)
+- Seeders (`database/seeders`)
+- Traits (`app/Traits`)
+- Frontend UI views and translations
 
-Alternatively, you can publish specific resources:
+You can also publish individual resources:
 
 ```bash
 # Publish configuration
 php artisan vendor:publish --tag=RolesAndPermissions-config
-
-# Publish migrations
-php artisan vendor:publish --tag=RolesAndPermissions-migrations
 
 # Publish seeders
 php artisan vendor:publish --tag=RolesAndPermissions-seeders
 
 # Publish traits
 php artisan vendor:publish --tag=RolesAndPermissions-traits
+
+# Publish frontend UI views
+php artisan vendor:publish --tag=RolesAndPermissions-views
+
+# Publish frontend UI translations
+php artisan vendor:publish --tag=RolesAndPermissions-lang
 ```
 
-### Step 4: Run Migrations
+### Step 3: Run Migrations
 
 ```bash
 php artisan migrate
 ```
 
-### Step 5: Seed Database
+### Step 4: Seed Database
 
 Seed the permission methods, permissions, and roles:
 
@@ -94,7 +95,7 @@ php artisan roleperm:seed
 ```
 
 To also create/update the configured super admin user, enable it in config (see
-[Super Admin Seeding](#super-admin-seeding-opt-in)) or pass the flag:
+[Seeding](#seeding)) or pass the flag:
 
 ```bash
 php artisan roleperm:seed --super-admin
@@ -123,31 +124,73 @@ Define the available permission methods:
 ],
 ```
 
-### Super Admin Seeding (opt-in)
+### Frontend UI (optional)
 
-No user is created by default and there are no default credentials. To have the
-seeder create/update a super admin user, enable it and supply credentials:
+The package ships an optional Livewire dashboard that lists roles and
+permissions with search and pagination. Livewire is not installed by this
+package; install it only if you want the dashboard:
+
+```bash
+composer require livewire/livewire
+```
+
+The UI is disabled by default. Enable it and configure access in
+`config/roles-and-permissions.php`:
+
+```php
+'ui' => [
+    'enabled' => env('ROLEPERM_UI_ENABLED', true),
+    'path' => env('ROLEPERM_UI_PATH', 'roles-and-permissions'),
+    'middleware' => ['web', 'auth'],
+    'permission' => env('ROLEPERM_UI_PERMISSION'), // optional permission gate
+    'per_page' => 15,
+    'title' => env('ROLEPERM_UI_TITLE'), // defaults to the translation
+    'brand' => env('ROLEPERM_UI_BRAND'),
+],
+```
+
+When `permission` is set, users must have that permission to view the dashboard.
+Publish the views or translations with `--tag=RolesAndPermissions-views` and
+`--tag=RolesAndPermissions-lang` to customize the UI. UI labels are translatable
+through the `roles-and-permissions::ui` namespace.
+
+### Seeding
+
+The default roles and the super admin user are fully configurable:
 
 ```php
 'seed' => [
+    'roles' => [
+        ['title' => 'Super Admin', 'description' => 'Application Owner'],
+        ['title' => 'User', 'description' => 'Restricted User'],
+    ],
+
     'super_admin' => [
         'enabled' => env('ROLEPERM_SUPER_ADMIN_ENABLED', false),
         'name' => env('ROLEPERM_SUPER_ADMIN_NAME', 'Super Admin'),
         'email' => env('ROLEPERM_SUPER_ADMIN_EMAIL'),
         'password' => env('ROLEPERM_SUPER_ADMIN_PASSWORD'),
         'role' => 'Super Admin',
+
+        // Map these to your user model's column names.
+        'fields' => [
+            'name' => 'name',
+            'email' => 'email',
+            'password' => 'password',
+        ],
     ],
 ],
 ```
 
-You can also enable it for a single run with:
+No user is created by default and there are no default credentials. You can
+also enable super admin seeding for a single run with:
 
 ```bash
 php artisan roleperm:seed --super-admin
 ```
 
-If seeding is enabled but the email or password is missing, the command fails
-with a clear error instead of creating an insecure account.
+If seeding is enabled but the email, password, or role is missing, the command
+fails with a clear error instead of creating an insecure account.
 
 ### User Model
 
@@ -198,7 +241,11 @@ Roles and permissions are scoped by `guard_name`:
 ```php
 'guards' => ['web'],
 'default_guard' => null, // defaults to the first guard, then auth.defaults.guard
+'user_guard' => null,    // defaults to the active auth guard, then default_guard
 ```
+
+Role and permission lookups are filtered by guard, so identical slugs in
+different guards do not leak permissions across guards.
 
 ### Permission Models
 
@@ -349,6 +396,13 @@ and `Gate::allows()` work without defining anything manually. A single
 `hasPermissionTo()` on your user model. Unknown abilities are left untouched so
 your own policies and gates continue to work.
 
+### 6. Frontend UI (optional)
+
+An optional Livewire dashboard is included at `roles-and-permissions.dashboard`.
+It lists roles and permissions and can be enabled, disabled, permission-gated,
+or relocated through the `ui` config block. See
+[Frontend UI](#frontend-ui-optional) under Configuration.
+
 ## Available Methods
 
 ### User Model Methods (via HasPermissionTrait)
@@ -400,7 +454,8 @@ composer test:coverage
 
 The suite covers models and slug/guard defaults, the `HasPermissionTrait` API,
 Gate integration, the permission cache, seeding (including opt-in super admin),
-console commands, middleware, and Blade directives.
+console commands, middleware, Blade directives, multi-guard isolation, and the
+optional UI.
 
 ## Contributing
 

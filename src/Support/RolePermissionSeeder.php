@@ -70,17 +70,31 @@ class RolePermissionSeeder
     protected function createBaseRoles(): void
     {
         $roleModel = Config::roleModel();
+        $roles = Config::get('seed.roles', []);
 
-        DB::transaction(function () use ($roleModel) {
-            $roleModel::updateOrCreate(
-                ['title' => 'Super Admin', 'guard_name' => $this->guard],
-                ['slug' => 'Super Admin', 'description' => 'Application Owner']
-            );
+        if (! is_array($roles)) {
+            return;
+        }
 
-            $roleModel::updateOrCreate(
-                ['title' => 'User', 'guard_name' => $this->guard],
-                ['slug' => 'User', 'description' => 'Restricted User']
-            );
+        DB::transaction(function () use ($roleModel, $roles) {
+            foreach ($roles as $role) {
+                $title = is_array($role) ? ($role['title'] ?? null) : $role;
+
+                if (! is_string($title) || trim($title) === '') {
+                    continue;
+                }
+
+                $attributes = ['slug' => $title];
+
+                if (is_array($role) && isset($role['description'])) {
+                    $attributes['description'] = $role['description'];
+                }
+
+                $roleModel::updateOrCreate(
+                    ['title' => $title, 'guard_name' => $this->guard],
+                    $attributes
+                );
+            }
         });
     }
 
@@ -102,20 +116,46 @@ class RolePermissionSeeder
             );
         }
 
-        $roleName = $config['role'] ?? 'Super Admin';
+        $roleName = $config['role'] ?? null;
+
+        if (! is_string($roleName) || trim($roleName) === '') {
+            throw new RuntimeException(
+                'Super admin seeding is enabled, but "seed.super_admin.role" is not configured.'
+            );
+        }
+
+        $fields = is_array($config['fields'] ?? null) ? $config['fields'] : [];
+        $nameField = $this->fieldName($fields, 'name');
+        $emailField = $this->fieldName($fields, 'email');
+        $passwordField = $this->fieldName($fields, 'password');
+
         $roleSlug = Str::slug($roleName, '_');
 
         $userModel = Config::userModel();
         $roleModel = Config::roleModel();
         $permissionModel = Config::permissionModel();
 
-        DB::transaction(function () use ($config, $email, $password, $roleName, $roleSlug, $userModel, $roleModel, $permissionModel) {
+        $user = new $userModel();
+
+        if (! method_exists($user, 'roles') || ! method_exists($user, 'permissions')) {
+            throw new RuntimeException(
+                "User model [{$userModel}] must use the HasPermissionTrait."
+            );
+        }
+
+        DB::transaction(function () use ($config, $email, $password, $emailField, $nameField, $passwordField, $roleName, $roleSlug, $userModel, $roleModel, $permissionModel) {
+            $attributes = [
+                $nameField => $config['name'] ?? null,
+                $passwordField => Hash::make($password),
+            ];
+
+            if ($attributes[$nameField] === null) {
+                unset($attributes[$nameField]);
+            }
+
             $user = $userModel::updateOrCreate(
-                ['email' => $email],
-                [
-                    'name' => $config['name'] ?? 'Super Admin',
-                    'password' => Hash::make($password),
-                ]
+                [$emailField => $email],
+                $attributes
             );
 
             $role = $roleModel::where('guard_name', $this->guard)
@@ -136,5 +176,21 @@ class RolePermissionSeeder
             $user->roles()->syncWithoutDetaching([$role->getKey()]);
             $user->permissions()->syncWithoutDetaching($permissions->modelKeys());
         });
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     */
+    protected function fieldName(array $fields, string $key): string
+    {
+        $field = $fields[$key] ?? $key;
+
+        if (! is_string($field) || trim($field) === '') {
+            throw new RuntimeException(
+                "Super admin field mapping [{$key}] must be a non-empty string."
+            );
+        }
+
+        return $field;
     }
 }

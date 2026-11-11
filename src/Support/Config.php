@@ -73,6 +73,28 @@ class Config
             ?: (self::guards()[0] ?? config('auth.defaults.guard', 'web'));
     }
 
+    public static function userGuard(): string
+    {
+        $guard = self::get('user_guard');
+
+        if (is_string($guard) && $guard !== '') {
+            return $guard;
+        }
+
+        $authGuard = config('auth.defaults.guard');
+
+        return is_string($authGuard) && $authGuard !== ''
+            ? $authGuard
+            : self::defaultGuard();
+    }
+
+    public static function currencyDecimals(): int
+    {
+        $decimals = self::get('currency_decimals', 2);
+
+        return is_numeric($decimals) ? (int) $decimals : 2;
+    }
+
     public static function cacheEnabled(): bool
     {
         return filter_var(self::get('cache.enabled', true), FILTER_VALIDATE_BOOLEAN);

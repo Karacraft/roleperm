@@ -14,12 +14,18 @@ class RoleMiddleware
 
         //  This protects , when applied on Routes
         if (! $user || ! $user->hasAnyRole($roles)) {
-            abort(403, "You are not authorized");
+            abort(403, config(
+                'roles-and-permissions.unauthorized_access_string',
+                'Unauthorized Access'
+            ));
         }
 
         //  This protects , when you don't have the permission in Controller
-        if($permission !== null && ! $user->can($permission)) {
-            abort(403,"You do not have access permission -- $permission");
+        if ($permission !== null && ! $user->can($permission)) {
+            abort(403, config(
+                'roles-and-permissions.unauthorized_permission_string',
+                'Unauthorized Access'
+            ) . " [{$permission}]");
         }
 
         return $next($request);

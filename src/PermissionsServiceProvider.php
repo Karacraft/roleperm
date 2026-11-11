@@ -44,7 +44,7 @@ class PermissionsServiceProvider extends ServiceProvider
         });
 
         Blade::directive('tocurrency', function ($money) {
-            return "<?php echo number_format($money, 2); ?>";
+            return "<?php echo number_format({$money}, \\Karacraft\\RolesAndPermissions\\Support\\Config::currencyDecimals()); ?>";
         });
 
         Blade::if('roles', function (...$role) {
